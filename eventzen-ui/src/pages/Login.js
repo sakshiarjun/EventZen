@@ -1,71 +1,176 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { spring } from "../services/api";
-import { useNavigate, Link } from "react-router-dom";
+
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper
+} from "@mui/material";
+
+import Stars from "../components/Stars";
+import LandingNavbar from "../components/LandingNavbar";
 
 export default function Login() {
 
-  const nav = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [email,setEmail]=useState("");
-  const [password,setPassword]=useState("");
+  const nav = useNavigate();
 
   const login = async () => {
 
-    const res = await spring.post("/auth/login",{
-      email,
-      password
-    });
+    try {
 
-    localStorage.setItem("user", JSON.stringify(res.data));
+      const res = await spring.post(
+        "/auth/login",
+        {
+          email,
+          password
+        }
+      );
 
-    if(res.data.role === "ADMIN")
-    {
-      nav("/admin");
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data)
+      );
+
+      if (res.data.role === "ADMIN")
+        nav("/admin");
+      else
+        nav("/dashboard");
+
+    } catch {
+
+      alert("Invalid login");
+
     }
-    else
-    {
-      nav("/dashboard");
-    }
+
   };
 
   return (
 
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "black",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }}
+    >
 
-      <h2 className="text-3xl font-bold mb-2 text-red-500">
-        EventZen Login
-      </h2>
+      {/* stars */}
 
-      <div className="bg-white p-8 rounded-xl shadow w-96 border-2 border-red-500">
+      <Stars />
 
-        <input
-          placeholder="Email"
-          className="w-full border p-2 mb-3"
-          onChange={e=>setEmail(e.target.value)}
-        />
+      {/* navbar */}
 
-        <input
-          placeholder="Password"
-          type="password"
-          className="w-full border p-2 mb-3"
-          onChange={e=>setPassword(e.target.value)}
-        />
+      <LandingNavbar />
 
-        <button
-          onClick={login}
-          className="w-full bg-red-500 text-white p-2 rounded"
+      {/* center */}
+
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+          zIndex: 1
+        }}
+      >
+
+        {/* glass card */}
+
+        <Paper
+          sx={{
+            p: 4,
+            width: 350,
+            backdropFilter: "blur(10px)",
+            background:
+              "rgba(255,255,255,0.1)",
+            borderRadius: 4,
+            border:
+              "1px solid rgba(255,255,255,0.3)"
+          }}
         >
-          Login
-        </button>
 
-        <Link to="/register">
-          <p className="text-sm mt-3 text-center">
+          {/* title */}
+
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              fontWeight: 800,
+              background:
+                "linear-gradient(90deg,#ff3d00,#ff9100,#00e5ff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              mb: 2
+            }}
+          >
+            EventZen
+          </Typography>
+
+          <Typography
+            align="center"
+            sx={{ mb: 2, color: "white" }}
+          >
+            Login to your account
+          </Typography>
+
+
+          <TextField
+            label={<span style={{ color: "white" }}>Email</span>}
+            fullWidth
+            sx={{ mb: 2, input: { color: "white" }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            onChange={e =>
+              setEmail(e.target.value)
+            }
+          />
+
+          <TextField
+            label={<span style={{ color: "white" }}>Password</span>}
+            type="password"
+            fullWidth
+            sx={{ mb: 2, input: { color: "white" }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            onChange={e =>
+              setPassword(e.target.value)
+            }
+          />
+
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={login}
+            sx={{
+              mt: 1,
+              background:
+                "linear-gradient(90deg,#ff3d00,#ff9100)"
+            }}
+          >
+            Login
+          </Button>
+
+
+          <Button
+            fullWidth
+            sx={{ mt: 2, color: "white" }}
+            onClick={() =>
+              nav("/register")
+            }
+          >
             Don't have an account? Register
-          </p>
-        </Link>
+          </Button>
 
-      </div>
+        </Paper>
 
-    </div>
+      </Box>
+
+    </Box>
+
   );
 }

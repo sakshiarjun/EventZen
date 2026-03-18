@@ -1,63 +1,185 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { spring } from "../services/api";
-import { Link } from "react-router-dom";
+
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper
+} from "@mui/material";
+
+import Stars from "../components/Stars";
+import LandingNavbar from "../components/LandingNavbar";
 
 export default function Register() {
 
-  const [name,setName]=useState("");
-  const [email,setEmail]=useState("");
-  const [password,setPassword]=useState("");
+  const nav = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: ""
+  });
+
+  const change = (e) => {
+
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+
+  };
 
   const register = async () => {
 
-    await spring.post("/auth/register",{
-      name,email,password
-    });
+    try {
 
-    alert("Registered");
+      await spring.post(
+        "/auth/register",
+        form
+      );
+
+      alert("Registered");
+
+      nav("/login");
+
+    } catch {
+
+      alert("Error");
+
+    }
+
   };
 
   return (
 
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "black",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }}
+    >
 
-      <h1 className="text-2xl font-bold mb-4 text-red-500">
-        EventZen Register
-      </h1>
+      {/* stars */}
 
-      <div className="bg-white p-8 rounded-xl shadow w-96 border-2 border-red-500">
+      <Stars />
 
-        <input className="w-full border p-2 mb-2"
-          placeholder="Name"
-          onChange={e=>setName(e.target.value)}
-        />
+      {/* navbar */}
 
-        <input className="w-full border p-2 mb-2"
-          placeholder="Email"
-          onChange={e=>setEmail(e.target.value)}
-        />
+      <LandingNavbar />
 
-        <input className="w-full border p-2 mb-2"
-          placeholder="Password"
-          type="password"
-          onChange={e=>setPassword(e.target.value)}
-        />
+      {/* center */}
 
-        <button
-          onClick={register}
-          className="bg-red-500 text-white w-full p-2 rounded"
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+          zIndex: 1
+        }}
+      >
+
+        {/* glass card */}
+
+        <Paper
+          sx={{
+            p: 4,
+            width: 350,
+            backdropFilter: "blur(10px)",
+            background:
+              "rgba(255,255,255,0.1)",
+            borderRadius: 4,
+            border:
+              "1px solid rgba(255,255,255,0.3)"
+          }}
         >
-          Register
-        </button>
 
-        <Link to="/">
-          <p className="text-sm mt-3 text-center">
+          {/* title */}
+
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              fontWeight: 800,
+              background:
+                "linear-gradient(90deg,#ff3d00,#ff9100,#00e5ff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              mb: 2
+            }}
+          >
+            EventZen
+          </Typography>
+
+          <Typography
+            align="center"
+            sx={{ mb: 2, color: "white" }}
+          >
+            Create a new account
+          </Typography>
+
+
+          <TextField
+            label={<span style={{ color: "white" }}>Name</span>}
+            name="name"
+            fullWidth
+            sx={{ mb: 2, input: { color: "white" }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            onChange={change}
+          />
+
+          <TextField
+            label={<span style={{ color: "white" }}>Email</span>}
+            name="email"
+            fullWidth
+            sx={{ mb: 2, input: { color: "white" }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            onChange={change}
+          />
+
+          <TextField
+            label={<span style={{ color: "white" }}>Password</span>}
+            name="password"
+            type="password"
+            fullWidth
+            sx={{ mb: 2, input: { color: "white" }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            onChange={change}
+          />
+
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={register}
+            sx={{
+              mt: 1,
+              background:
+                "linear-gradient(90deg,#ff3d00,#ff9100)"
+            }}
+          >
+            Register
+          </Button>
+
+
+          <Button
+            fullWidth
+            sx={{ mt: 2, color: "white" }}
+            onClick={() =>
+              nav("/login")
+            }
+          >
             Already have an account? Login
-          </p>
-        </Link>
+          </Button>
 
-      </div>
+        </Paper>
 
-    </div>
+      </Box>
+
+    </Box>
+
   );
 }

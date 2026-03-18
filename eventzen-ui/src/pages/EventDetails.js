@@ -1,11 +1,23 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { node, spring } from "../services/api";
+import { p } from "framer-motion/client";
+import { useNavigate } from "react-router-dom";
+
 
 export default function EventDetails() {
 
+  const nav = useNavigate();
   const { id } = useParams();
 
+  const [user, setUser] = useState(null);
+
+   useEffect(() => {
+
+    const u = localStorage.getItem("user");
+    if (u)      setUser(JSON.parse(u));
+  }, []);
+  
   const [event, setEvent] = useState({});
   const [tickets, setTickets] = useState(1);
   const [attendees, setAttendees] = useState([]);
@@ -32,7 +44,8 @@ export default function EventDetails() {
 
       arr.push({
         name: "",
-        email: ""
+        email: "",
+        phone: ""
       });
 
     }
@@ -51,18 +64,34 @@ export default function EventDetails() {
 
   };
 
-  const book = async () => {
+const book = async () => {
 
-    await spring.post("/bookings", {
+  const user =
+    localStorage.getItem("user");
 
-      eventId: event.id,
-      attendeeCount: tickets
+  if (!user) {
 
-    });
+    alert("Please login first");
 
-    alert("Booked");
+    nav("/login");
 
-  };
+    return;
+  }
+
+  const u = JSON.parse(user);
+
+  await spring.post("/bookings", {
+
+    userId: u.id,
+    eventId: event.id,
+    attendeeCount: tickets,
+    attendees: attendees
+
+  });
+
+  alert("Booked");
+
+};
 
   return (
 
@@ -112,6 +141,13 @@ export default function EventDetails() {
             placeholder="Email"
             onChange={e =>
               changeAttendee(i, "email", e.target.value)
+            }
+          />
+
+          <input
+            placeholder="Phone"
+            onChange={e =>
+              changeAttendee(i, "phone", e.target.value)
             }
           />
 

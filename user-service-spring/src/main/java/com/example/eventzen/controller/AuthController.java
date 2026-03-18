@@ -44,9 +44,6 @@ public class AuthController {
         throw new RuntimeException("Invalid login");
     }
     
-    @GetMapping("/bookings")
-    public Iterable<Booking> getAllBookings() {
-        return bookingService.getAllBookings();
-    }
+    
     
 }

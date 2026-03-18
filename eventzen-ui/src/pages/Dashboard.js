@@ -1,54 +1,38 @@
 import { useEffect, useState } from "react";
 import { node } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
-import Navbar from "../components/Navbar";
-import Filters from "../components/Filters";
-import UserEventCard from "../components/UserEventCard";
+import MuiNavbar from "../components/MuiNavbar";
+
+import {
+  Container,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography
+} from "@mui/material";
 
 export default function Dashboard() {
-
   const [events, setEvents] = useState([]);
+  const nav = useNavigate();
 
   useEffect(() => {
+    const user = localStorage.getItem("user");
 
+    if (!user) {
+      nav("/login");
+    }
+  }, [nav]);
+
+  useEffect(() => {
     node.get("/events")
       .then(res => setEvents(res.data));
-
   }, []);
 
   return (
-
-    <div className="bg-gray-100 min-h-screen">
-
-      <Navbar />
-
-      <div className="max-w-7xl mx-auto flex gap-6 p-4">
-
-        {/* Filters */}
-        <Filters />
-
-        {/* Events */}
-        <div className="flex-1">
-
-          <h2 className="text-2xl font-bold mb-4">
-            Events in City
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            {events.map(e => (
-              <UserEventCard
-                key={e.id}
-                event={e}
-              />
-            ))}
-
-          </div>
-
-        </div>
-
-      </div>
-
+    <div>
+      {/* Your component JSX */}
     </div>
   );
 }

@@ -4,33 +4,30 @@ import Navbar from "../components/Navbar";
 
 export default function Bookings() {
 
-  const [bookings, setBookings] = useState([]);
+  const [data, setData] = useState([]);
 
   const user =
     JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
 
-    load();
-
-  }, []);
-
-  const load = () => {
-
     spring.get("/bookings")
       .then(res => {
 
-        // filter by user
+        console.log(res.data); // debug
+
         const list =
           res.data.filter(
-            b => b.userId === user.id
+            x =>
+              x.booking &&
+              x.booking.userId === user.id
           );
 
-        setBookings(list);
+        setData(list);
 
       });
 
-  };
+  }, []);
 
   return (
 
@@ -41,49 +38,48 @@ export default function Bookings() {
       <div className="max-w-6xl mx-auto p-4">
 
         <h2 className="text-2xl font-bold mb-4">
-
           My Bookings
-
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        {data.map(b => (
 
-          {bookings.map(b => (
+          <div
+            key={b.booking.id}
+            className="bg-white shadow p-4 mb-4"
+          >
 
-            <div
-              key={b.id}
-              className="bg-white shadow p-4 rounded"
-            >
+            <h3>
+              Booking #{b.booking.id}
+            </h3>
 
-              <h3 className="font-bold">
+            <p>
+              Event: {b.booking.eventId}
+            </p>
 
-                Booking ID: {b.id}
+            <p>
+              Tickets: {b.booking.attendeeCount}
+            </p>
 
-              </h3>
+            <h4>Attendees</h4>
 
-              <p>
+            {b.attendees &&
+              b.attendees.map((a, i) => (
 
-                Event ID: {b.eventId}
+                <div key={i}>
 
-              </p>
+                  {a.name}
+                  <br/>
+                  {a.email}
+                  <br/>
+                  {a.phone}
 
-              <p>
+                </div>
 
-                Tickets: {b.attendeeCount}
+              ))}
 
-              </p>
+          </div>
 
-              <p>
-
-                Status: {b.status}
-
-              </p>
-
-            </div>
-
-          ))}
-
-        </div>
+        ))}
 
       </div>
 
