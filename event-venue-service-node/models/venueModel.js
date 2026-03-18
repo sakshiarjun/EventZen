@@ -11,8 +11,8 @@ exports.getAllVenues = (callback) => {
 };
 
 exports.createVenue = (venueData, callback) => {
-    const query = 'INSERT INTO venues (name, location, capacity, price, status, active) VALUES (?, ?, ?, ?, ?, ?)';
-    const values = [venueData.name, venueData.location, venueData.capacity, venueData.price, 1,1];
+    const query = 'INSERT INTO venues (name, city, capacity, price, status, active) VALUES (?, ?, ?, ?, ?, ?)';
+    const values = [venueData.name, venueData.city, venueData.capacity, venueData.price, 1,1];
     db.query(query, values, (err, results) => {
         if (err) {
             return callback(err);

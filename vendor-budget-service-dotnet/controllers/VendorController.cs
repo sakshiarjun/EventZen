@@ -28,6 +28,8 @@ namespace vendor_budget_service_dotnet.Controllers
         {
             vendor.Active = true;
             vendor.Status = 1; // Assuming 1 is the default status for active vendors
+            vendor.CreatedAt = DateTime.UtcNow;
+            vendor.ModifiedAt = DateTime.UtcNow;
 
             _context.Vendors.Add(vendor);
             _context.SaveChanges();

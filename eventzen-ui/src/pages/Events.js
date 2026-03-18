@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect,useState } from "react";
 import { node } from "../services/api";
+import MainLayout from "../layouts/MainLayout";
 
-function Events() {
+export default function Events(){
 
   const [data,setData]=useState([]);
 
@@ -13,20 +14,25 @@ function Events() {
 
   },[]);
 
-  return (
+  return(
 
-    <div>
+    <MainLayout>
 
-      <h2>Events</h2>
+      <h2 className="text-xl font-bold mb-4">
+        Events
+      </h2>
 
-      {data.map(e=>(
-        <div key={e.id}>
-          {e.name}
-        </div>
-      ))}
+      <div className="bg-white shadow rounded">
 
-    </div>
+        {data.map(e=>(
+          <div key={e.id} className="p-3 border">
+            {e.name}
+          </div>
+        ))}
+
+      </div>
+
+    </MainLayout>
+
   );
 }
-
-export default Events;

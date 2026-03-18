@@ -32,14 +32,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {        
-        Optional<User> existingUser = userService.findByEmail(request.getEmail());
-        
-        if (existingUser.isPresent() && existingUser.get().getPassword().equals(request.getPassword())) {
-            return "Login successful";
-        } else {
-            return "Invalid email or password";
+    public User login(@RequestBody LoginRequest req) {
+
+        Optional<User> user = userService.findByEmail(req.getEmail());
+
+        if (user.isPresent() && user.get().getPassword().equals(req.getPassword())) {
+
+        return user.get();
         }
+
+        throw new RuntimeException("Invalid login");
     }
     
     @GetMapping("/bookings")

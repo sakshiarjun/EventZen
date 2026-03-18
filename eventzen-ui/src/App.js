@@ -8,7 +8,11 @@ import Venues from "./pages/Venues";
 import Bookings from "./pages/Bookings";
 import Vendors from "./pages/Vendors";
 import Budget from "./pages/Budget";
-import AdminPanel from "./pages/AdminPanel";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminEvents from "./pages/AdminEvents";
+import AdminVendors from "./pages/AdminVendors";
+import AdminVenues from "./pages/AdminVenues";
+import EventDetails from "./pages/EventDetails";
 
 function App() {
   return (
@@ -23,8 +27,11 @@ function App() {
         <Route path="/bookings" element={<Bookings />} />
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/budget" element={<Budget />} />
-        <Route path="/admin" element={<AdminPanel />} />
-
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/events" element={<AdminEvents />} />
+        <Route path="/admin/vendors" element={<AdminVendors />} />
+        <Route path="/admin/venues" element={<AdminVenues />} />
+        <Route path="/event/:id" element={<EventDetails />} />
       </Routes>
     </BrowserRouter>
   );
