@@ -6,7 +6,6 @@ export default function EventCard({ event, onEdit, onDelete }) {
 
       <img
         src={event.image_url || "https://picsum.photos/300/200"}
-        alt=""
       />
 
       <div className="p-3">
