@@ -1,86 +1,106 @@
 import { useEffect, useState } from "react";
-import { dotnet } from "../services/api";
+import { node } from "../services/api";
 
-import Navbar from "../components/Navbar";
-import VendorCard from "../components/VendorCard";
-import VendorForm from "../components/VendorForm";
+import {
+  Box, Typography, Table, TableHead,
+  TableRow, TableCell, TableBody,
+  Paper, Button
+} from "@mui/material";
 
-export default function AdminVendors() {
+import Stars from "../components/Stars";
+import DashboardNavbar from "../components/DashboardNavbar";
 
-  const [vendors, setVendors] = useState([]);
+export default function AdminVenues() {
 
-  const [selected, setSelected] = useState(null);
+  const [venues, setVenues] = useState([]);
 
   const load = () => {
-
-    dotnet.get("/vendors")
-      .then(res => setVendors(res.data));
-
+    node.get("/vendors").then(res => {
+      setVenues(res.data);
+    });
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(load, []);
 
-  const save = async (data) => {
 
-    if (data.id) {
+  const approve = async (id) => {
 
-      await dotnet.put("/vendors", data);
-
-    } else {
-
-      await dotnet.post("/vendors", data);
-
-    }
-
-    setSelected(null);
+    await node.put("/vendors/" + id, {
+      status: 1
+    });
 
     load();
   };
 
-  const remove = async (id) => {
-
-    await dotnet.delete("/vendors/" + id);
-
-    load();
-  };
 
   return (
 
-    <div className="bg-gray-100 min-h-screen">
+    <Box sx={{ minHeight: "100vh", background: "black", color: "white" }}>
 
-      <Navbar />
+      <Stars />
+      <DashboardNavbar />
 
-      <div className="max-w-6xl mx-auto p-4">
+      <Box sx={{ pt: 12, px: 3 }}>
 
-        <h2 className="text-2xl font-bold mb-4">
+        <Typography variant="h4">
           Manage Vendors
-        </h2>
+        </Typography>
 
-        <VendorForm
-          onSave={save}
-          selected={selected}
-        />
+        <Paper sx={{ background: "#232427" }}>
 
-        <div className="grid md:grid-cols-3 gap-4">
+          <Table>
 
-          {vendors.map(v => (
+            <TableHead>
 
-            <VendorCard
-              key={v.id}
-              vendor={v}
-              onDelete={remove}
-              onEdit={setSelected}
-            />
+              <TableRow>
 
-          ))}
+                <TableCell sx={{ color: "white" }}>Name</TableCell>
+                <TableCell sx={{ color: "white" }}>City</TableCell>
+                <TableCell sx={{ color: "white" }}>Action</TableCell>
 
-        </div>
+              </TableRow>
 
-      </div>
+            </TableHead>
 
-    </div>
+            <TableBody>
+
+              {venues.map(v => (
+
+                <TableRow key={v.id}>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {v.name}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {v.city}
+                  </TableCell>
+
+                  <TableCell>
+
+                    <Button
+                      variant="contained"
+                      onClick={() => approve(v.id)}
+                    >
+                      Approve
+                    </Button>
+
+                  </TableCell>
+
+                </TableRow>
+
+              ))}
+
+            </TableBody>
+
+          </Table>
+
+        </Paper>
+
+      </Box>
+
+    </Box>
 
   );
+
 }

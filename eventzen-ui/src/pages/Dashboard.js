@@ -1,20 +1,28 @@
 import { useEffect, useState } from "react";
 import { node } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
+import { motion } from "framer-motion";
 
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button, CardContent, Grid,Card, TextField} from "@mui/material";
 
 import Stars from "../components/Stars";
 import DashboardNavbar from "../components/DashboardNavbar";
 import EventRow from "../components/EventRow";
+import EventCard from "../components/EventCard";
+import CreateEventForm from "../components/CreateEventForm";
 
 export default function Dashboard() {
 
   const [events, setEvents] = useState([]);
   const [cityFilter, setCityFilter] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   const nav = useNavigate();
+  const eventsRef = useRef(null);
+  const createRef = useRef(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
 
@@ -34,23 +42,7 @@ export default function Dashboard() {
   const user =
     JSON.parse(localStorage.getItem("user"));
 
-  const toggleCity = (city) => {
-  setCityFilter(prev =>
-    prev.includes(city)
-      ? prev.filter(c => c !== city)
-      : [...prev, city]
-  );
-};
-
-const toggleCategory = (cat) => {
-  setCategoryFilter(prev =>
-    prev.includes(cat)
-      ? prev.filter(c => c !== cat)
-      : [...prev, cat]
-  );
-};
-
-  const filteredEvents = events.filter(e => {
+  const filteredEvents = events.filter((e) => {
 
   const cityMatch =
     cityFilter.length === 0 ||
@@ -60,9 +52,20 @@ const toggleCategory = (cat) => {
     categoryFilter.length === 0 ||
     categoryFilter.includes(e.category);
 
-  return cityMatch && categoryMatch;
+  const searchMatch =
+    !search ||
+    e.name?.toLowerCase().includes(search) ||
+    e.city?.toLowerCase().includes(search) ||
+    e.category?.toLowerCase().includes(search);
+
+  return cityMatch && categoryMatch && searchMatch;
 
 });
+
+  
+const handleSearch = (e) => {
+  setSearch(e.target.value.toLowerCase());
+};
 
   return (
 
@@ -81,93 +84,31 @@ const toggleCategory = (cat) => {
       <DashboardNavbar />
 
       <Box
-        sx={{
+  sx={{
     pt: 12,
     px: 2,
-    display: "flex",
-    gap: 3,
     position: "relative",
-    zIndex: 1
+    zIndex: 1,
+    display: "flex",
+    justifyContent: "center"
   }}
 >
-  <Box
+
+<Box
+  component={motion.div}
+  initial={{ opacity: 0, y: 50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1 }}
   sx={{
-    width: 250,
-    minWidth: 250,
-    background: "rgba(255,255,255,0.05)",
-    borderRadius: 3,
-    p: 2
-  }}
+  width: "100%",
+  maxWidth: {
+    xs: "100%",
+    sm: "100%",
+    md: 1000,
+    lg: 1200,
+  }
+}}
 >
-
-  <Typography variant="h6">
-    Filters
-  </Typography>
-
-  {/* CITY */}
-
-  <Typography sx={{ mt: 2 }}>
-    City
-  </Typography>
-
-  {[
-    "Mumbai",
-    "Delhi",
-    "Pune",
-    "Bangalore",
-    "Hyderabad",
-    "Chennai",
-    "Kolkata"
-  ].map(city => (
-
-    <label key={city}>
-
-      <input
-        type="checkbox"
-        onChange={() => toggleCity(city)}
-      />
-
-      {city}
-
-      <br />
-
-    </label>
-
-  ))}
-
-  {/* CATEGORY */}
-
-  <Typography sx={{ mt: 2 }}>
-    Category
-  </Typography>
-
-  {[
-    "Music",
-    "Workshop",
-    "Popular",
-    "Business",
-    "Festival",
-    "Tech"
-  ].map(cat => (
-
-    <label key={cat}>
-
-      <input
-        type="checkbox"
-        onChange={() => toggleCategory(cat)}
-      />
-
-      {cat}
-
-      <br />
-
-    </label>
-
-  ))}
-
-</Box>
-<Box sx={{ flex: 1 }}>
-
 
         <Stars />
         <Typography
@@ -183,29 +124,216 @@ const toggleCategory = (cat) => {
           >
           Welcome, {user?.name}
         </Typography>
+          
+        <Box sx={{ width: "100%", mt: 4 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <Card
+              sx={{
+                background: "#232427",
+                borderRadius: 3,
+                p: 2,
+                minHeight: { xs: 100, sm: 150, md: 150 },
+                width: "100%",
+                
+              }}
+            >
+              <CardContent>
+                <Typography variant="h5" fontWeight="bold" color="white">
+                  Create Your Own Event
+                </Typography>
 
+                <Typography color="gray" mb={3}>
+                  Plan and organize your own event easily.
+                </Typography>
+
+                <Box
+                    component="img"
+                    src="/images/create-event-placeholder.png"
+                    alt="Create Event Placeholder"
+                    sx={{
+                      width: "45%",
+                      height: "45%",
+                      borderRadius: 2,
+                      mb: 2,
+                      mx: "auto",
+                      display: "block",
+                    }}
+                />
+
+                <Box
+                  sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  mt: "auto", // Push the button to the bottom of the card
+                  }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      createRef.current?.scrollIntoView({
+                    behavior: "smooth", });
+                    }}
+                    sx={{
+                      background: "#ff6a00",
+                      fontWeight: "bold",
+                    }}>
+                  Create Event
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <Card
+              sx={{
+                background: "#232427",
+                borderRadius: 3,
+                p: 2,
+                minHeight: { xs: 100, sm: 150, md: 150 },
+                width: "100%",
+                
+              }}
+            >
+              <CardContent>
+                <Typography variant="h5" fontWeight="bold" color="white">
+                  Book Public Events
+                </Typography>
+
+                <Typography color="gray" mb={3}>
+                  Find and book upcoming public events.
+                </Typography>
+
+                <Box
+                    component="img"
+                    src="/images/book-events-placeholder.png"
+                    alt="Book Events Placeholder"
+                    sx={{
+                      width: "45%",
+                      height: "45%",
+                      borderRadius: 2,
+                      mb: 2,
+                      mx: "auto",
+                      display: "block",
+                    }}
+                />
+
+                <Box
+                  sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  mt: "auto", // Push the button to the bottom of the card
+                  }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      eventsRef.current?.scrollIntoView({
+                    behavior: "smooth", });
+                    }}
+                    sx={{
+                      background: "#ff6a00",
+                      fontWeight: "bold",
+                    }}>
+                  Browse Events
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          
+          
+        </Grid>
+        </Box>
+
+        
         {/* upcoming bookings */}
 
-        <EventRow
-          title="Music Events"
-          events={filteredEvents.filter(
-          e => e.category === "Music"
-          )}
-        />
+          <Box mt={40} ref={eventsRef}>
 
-        <EventRow
-          title="Business Events"
-          events={filteredEvents.filter(
+  <Box sx={{ mb: 4 }}>
+    <TextField
+      label="Search for Events by name, city, category"
+      fullWidth
+      onChange={handleSearch}
+      sx={{
+        backgroundColor: "white",
+        borderRadius: 1
+      }}
+    />
+  </Box>
+
+
+  {/* ✅ WHEN SEARCHING → SHOW CARDS */}
+
+  {search ? (
+
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 2
+      }}
+    >
+
+      {filteredEvents.map((e) => (
+        <EventCard key={e.id} event={e} />
+      ))}
+
+    </Box>
+
+  ) : (
+
+    /* ✅ NO SEARCH → SHOW ROWS */
+
+    <>
+      <EventRow
+        title="Technology"
+        events={filteredEvents.filter(
+          e => e.category === "Tech"
+        )}
+      />
+
+      <EventRow
+        title="Business Events"
+        events={filteredEvents.filter(
           e => e.category === "Business"
-          )}
-        />
+        )}
+      />
 
-        <EventRow
-          title="Conferences"
-          events={filteredEvents.filter(
+      <EventRow
+        title="Conferences"
+        events={filteredEvents.filter(
           e => e.category === "Conference"
-          )}
-        />
+        )}
+      />
+    </>
+
+  )}
+
+</Box>
+        
+        {/* Create Events Form */}
+        <Box mt={30} ref={createRef}>
+          <Typography variant="h5" fontWeight="bold" mb={2}>
+            Create Event
+          </Typography>
+
+        {/* your create event form here */}
+
+        <Card
+          sx={{
+          background: "#232427",
+          p: 3,
+          borderRadius: 3,
+          }}>
+
+          <CreateEventForm />
+
+        </Card>
+
+      </Box>
+        
 
       </Box>
       </Box>

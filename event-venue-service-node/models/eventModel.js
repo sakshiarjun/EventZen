@@ -18,10 +18,12 @@ exports.createEvent = (data, callback) => {
     const sql =
         `INSERT INTO events
         (name, description, city, category,
-         venue_id, event_date, start_time, end_time,
+         venue_id, venue_name,
+         event_date, start_time, end_time,
          price, image_url, organizer,
-         status, active)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+         status, active,
+         created_by_role, created_by_name)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
     db.query(
         sql,
@@ -31,14 +33,17 @@ exports.createEvent = (data, callback) => {
             data.city,
             data.category,
             data.venue_id,
+            data.venue_name,
             data.event_date,
             data.start_time,
             data.end_time,
             data.price,
-            data.image_url,
+            data.image_url || null,
             data.organizer,
+            0,
             1,
-            1
+            data.created_by_role,
+            data.created_by_name
         ],
         callback
     );
@@ -51,5 +56,23 @@ exports.deleteEvent = (id, callback) => {
             return callback(err);
         }
         callback(null, results.affectedRows);
+    });
+};
+
+exports.getEventById = (id, callback) => {
+
+    const sql = `
+    SELECT e.*, v.name as venue_name
+    FROM events e
+    LEFT JOIN venues v
+    ON e.venue_id = v.id
+    WHERE e.id = ? AND e.active = 1
+    `;
+
+    db.query(sql, [id], (err, results) => {
+        if (err) {
+            return callback(err);
+        }
+        callback(null, results[0]);
     });
 };

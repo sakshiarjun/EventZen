@@ -1,41 +1,39 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { node, spring } from "../services/api";
-import { p } from "framer-motion/client";
-import { useNavigate } from "react-router-dom";
+import {toast } from "react-toastify";
+import {
+  Box,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+  Button,
+  TextField
+} from "@mui/material";
 
+import Stars from "../components/Stars";
+import DashboardNavbar from "../components/DashboardNavbar";
 
 export default function EventDetails() {
 
-  const nav = useNavigate();
   const { id } = useParams();
+  const nav = useNavigate();
 
-  const [user, setUser] = useState(null);
-
-   useEffect(() => {
-
-    const u = localStorage.getItem("user");
-    if (u)      setUser(JSON.parse(u));
-  }, []);
-  
-  const [event, setEvent] = useState({});
+  const [event, setEvent] = useState(null);
   const [tickets, setTickets] = useState(1);
   const [attendees, setAttendees] = useState([]);
 
+  // fetch event
   useEffect(() => {
 
-    node.get("/events")
-      .then(res => {
-
-        const e =
-          res.data.find(x => x.id == id);
-
-        setEvent(e);
-      });
+    node.get("/events/" + id)
+      .then(res => setEvent(res.data));
 
   }, [id]);
 
-  // generate attendee fields
+
+  // generate attendees
   useEffect(() => {
 
     const arr = [];
@@ -54,6 +52,7 @@ export default function EventDetails() {
 
   }, [tickets]);
 
+
   const changeAttendee = (i, field, value) => {
 
     const copy = [...attendees];
@@ -64,105 +63,200 @@ export default function EventDetails() {
 
   };
 
-const book = async () => {
 
-  const user =
-    localStorage.getItem("user");
+  const book = async () => {
 
-  if (!user) {
+    const user =
+      JSON.parse(localStorage.getItem("user"));
 
-    alert("Please login first");
+    if (!user) {
+      toast.error("Please login to book");
+      nav("/login");
+      return;
+    }
 
-    nav("/login");
+    await spring.post("/bookings", {
 
-    return;
-  }
+      userId: user.id,
+      userName: user.name,
+      eventId: event.id,
+      eventName: event.name,
+      attendeeCount: tickets,
+      attendees
 
-  const u = JSON.parse(user);
+    });
 
-  await spring.post("/bookings", {
+    toast.success("Your booking will be confirmed shortly!");
+    
 
-    userId: u.id,
-    eventId: event.id,
-    attendeeCount: tickets,
-    attendees: attendees
+  };
 
-  });
 
-  alert("Booked");
+  if (!event) return null;
 
-};
 
   return (
 
-    <div className="p-6">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "black",
+        color: "white",
+        position: "relative"
+      }}
+    >
 
-      <h2 className="text-2xl font-bold">
+      <Stars />
+      <Stars />
+      <DashboardNavbar />
 
-        {event.name}
-
-      </h2>
-
-      <img
-        src={event.image_url}
-        className="w-96"
-      />
-
-      <p>{event.description}</p>
-
-      <p>{event.city}</p>
-
-      <p>₹ {event.price}</p>
-
-      <hr />
-
-      <h3>Select Tickets</h3>
-
-      <input
-        type="number"
-        value={tickets}
-        onChange={e => setTickets(e.target.value)}
-      />
-
-      <h3>Attendees</h3>
-
-      {attendees.map((a, i) => (
-
-        <div key={i}>
-
-          <input
-            placeholder="Name"
-            onChange={e =>
-              changeAttendee(i, "name", e.target.value)
-            }
-          />
-
-          <input
-            placeholder="Email"
-            onChange={e =>
-              changeAttendee(i, "email", e.target.value)
-            }
-          />
-
-          <input
-            placeholder="Phone"
-            onChange={e =>
-              changeAttendee(i, "phone", e.target.value)
-            }
-          />
-
-        </div>
-
-      ))}
-
-      <button
-        onClick={book}
-        className="bg-red-500 text-white p-2"
+      <Box
+        sx={{
+          pt: 12,
+          px: 3,
+          display: "flex",
+          justifyContent: "center"
+        }}
       >
-        Book
-      </button>
 
-    </div>
+        <Card
+          sx={{
+            maxWidth: 800,
+            width: "100%",
+            background: "#232427",
+            color: "white"
+          }}
+        >
+
+          <CardMedia
+            component="img"
+            height="300"
+            image={
+              event.image_url ||
+              "https://picsum.photos/600"
+            }
+          />
+
+          <CardContent>
+
+            <Typography variant="h4">
+              {event.name}
+            </Typography>
+
+            <Typography>
+              {event.city}
+            </Typography>
+
+            <Typography>
+              ₹ {event.price}
+            </Typography>
+
+            <Typography sx={{ mt: 2 }}>
+              {event.description}
+            </Typography>
+
+
+            {/* tickets */}
+
+            <Typography sx={{ mt: 3 }}>
+              Number of Tickets
+            </Typography>
+
+            <TextField
+              type="number"
+              value={tickets}
+              onChange={(e) =>
+                setTickets(Number(e.target.value))
+              }
+              sx={{
+                background: "white",
+                borderRadius: 1,
+                mt: 1
+              }}
+            />
+
+
+            {/* attendees */}
+
+            {attendees.map((a, i) => (
+
+              <Box key={i} sx={{ mt: 2 }}>
+
+                <Typography sx={{ mt: 3 }}>
+                  Details for Attendee {i + 1}
+                </Typography>
+
+                <TextField
+                  placeholder="Name"
+                  fullWidth
+                  sx={{
+                    background: "white",
+                    mb: 1
+                  }}
+                  onChange={e =>
+                    changeAttendee(
+                      i,
+                      "name",
+                      e.target.value
+                    )
+                  }
+                />
+
+                <TextField
+                  placeholder="Email"
+                  fullWidth
+                  sx={{
+                    background: "white",
+                    mb: 1
+                  }}
+                  onChange={e =>
+                    changeAttendee(
+                      i,
+                      "email",
+                      e.target.value
+                    )
+                  }
+                />
+
+                <TextField
+                  placeholder="Phone"
+                  fullWidth
+                  sx={{
+                    background: "white"
+                  }}
+                  onChange={e =>
+                    changeAttendee(
+                      i,
+                      "phone",
+                      e.target.value
+                    )
+                  }
+                />
+
+              </Box>
+
+            ))}
+
+
+            <Button
+              variant="contained"
+              sx={{
+                mt: 3,
+                background: "#ff6a00"
+              }}
+              onClick={book}
+            >
+              Book Event
+            </Button>
+
+          </CardContent>
+
+        </Card>
+
+      </Box>
+
+    </Box>
 
   );
+
 }

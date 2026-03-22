@@ -1,45 +1,59 @@
-export default function EventCard({ event, onEdit, onDelete }) {
+import { Card, CardMedia, CardContent, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+export default function EventCard({ event }) {
+
+  const nav = useNavigate();
+
+  const openEvent = () => {
+    console.log("clicked", event.id); // debug
+    nav("/event/" + event.id);
+  };
 
   return (
 
-    <div className="bg-white shadow rounded overflow-hidden">
+    <Card
+      onClick={openEvent}
+      sx={{
+        cursor: "pointer",
+        background: "rgba(255,255,255,0.1)",
+        border: "1px solid rgba(255,255,255,0.3)",
+        borderRadius: 2,
+        height: 320,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        transition: "transform 0.2s",
+        "&:hover": {
+          transform: "scale(1.04)"
+        }
+      }}
+    >
 
-      <img
-        src={event.image_url || "https://picsum.photos/300/200"}
+      <CardMedia
+        component="img"
+        height="160"
+        image={event.image_url || "https://picsum.photos/300"}
+        alt={event.name}
       />
 
-      <div className="p-3">
+      <CardContent>
 
-        <h3 className="font-bold">
+        <Typography sx={{ color: "white" }}>
           {event.name}
-        </h3>
+        </Typography>
 
-        <p>{event.city}</p>
-        <p>{event.category}</p>
-        <p>₹{event.price}</p>
-        <p>{event.venue_name}</p>
+        <Typography sx={{ color: "white" }}>
+          {event.city}
+        </Typography>
 
-        <div className="flex gap-2 mt-2">
+        <Typography sx={{ color: "white" }}>
+          ₹ {event.price}
+        </Typography>
 
-          <button
-            onClick={() => onEdit(event)}
-            className="bg-blue-500 text-white px-3 py-1"
-          >
-            Edit
-          </button>
+      </CardContent>
 
-          <button
-            onClick={() => onDelete(event.id)}
-            className="bg-red-500 text-white px-3 py-1"
-          >
-            Delete
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
+    </Card>
   );
 }

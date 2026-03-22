@@ -19,7 +19,10 @@ export default function LandingNavbar() {
       <Toolbar>
 
         <Typography
-          sx={{ flexGrow: 1 }}
+          variant="h6"
+          sx={{ flexGrow: 1, cursor: "pointer",
+                fontWeight: 900
+           }}
         >
           EventZen
         </Typography>

@@ -1,52 +1,127 @@
-import Navbar from "../components/Navbar";
-import { Link } from "react-router-dom";
+import { Box, Button, Typography, Paper } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+import Stars from "../components/Stars";
+import DashboardNavbar from "../components/DashboardNavbar";
 
 export default function AdminDashboard() {
 
+  const nav = useNavigate();
+
   return (
 
-    <div className="bg-gray-100 min-h-screen">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "black",
+        color: "white",
+        position: "relative"
+      }}
+    >
 
-      <Navbar />
+      <Stars />
+      <Stars />
 
-      <div className="max-w-6xl mx-auto p-4">
+      <DashboardNavbar />
 
-        <h2 className="text-2xl font-bold mb-4">
-          Admin Panel
-        </h2>
+      {/* MAIN LAYOUT */}
 
-        <div className="grid md:grid-cols-3 gap-4">
+      <Box
+        sx={{
+          pt: 12,
+          px: 3,
+          display: "flex",
+          gap: 3
+        }}
+      >
 
-          <Link to="/admin/events"
-            className="bg-white p-6 shadow rounded">
+        {/* SIDE PANEL */}
 
+        <Paper
+          sx={{
+            width: 250,
+            background: "#232427",
+            color: "white",
+            p: 2,
+            height: "80vh"
+          }}
+        >
+
+          <Typography
+            variant="h6"
+            mb={2}
+          >
+            Admin Panel
+          </Typography>
+
+
+          <Button
+            fullWidth
+            sx={{ mb: 1 }}
+            variant="contained"
+            onClick={() => nav("/admin/events")}
+          >
             Manage Events
+          </Button>
 
-          </Link>
 
-          <Link to="/admin/vendors"
-            className="bg-white p-6 shadow rounded">
-
-            Manage Vendors
-
-          </Link>
-
-          <Link to="/admin/budget"
-            className="bg-white p-6 shadow rounded">
-
-            Manage Budget
-
-          </Link>
-
-          <Link to="/admin/venues"
-            className="bg-white p-6 shadow rounded">
+          <Button
+            fullWidth
+            sx={{ mb: 1 }}
+            variant="contained"
+            onClick={() => nav("/admin/venues")}
+          >
             Manage Venues
-          </Link>
+          </Button>
 
-        </div>
 
-      </div>
+          <Button
+            fullWidth
+            sx={{ mb: 1 }}
+            variant="contained"
+            onClick={() => nav("/admin/vendors")}
+          >
+            Manage Vendors
+          </Button>
 
-    </div>
+
+          <Button
+            fullWidth
+            sx={{ mb: 1 }}
+            variant="contained"
+            onClick={() => nav("/admin/bookings")}
+          >
+            Manage Bookings
+          </Button>
+
+        </Paper>
+
+
+        {/* RIGHT CONTENT */}
+
+        <Box
+          sx={{
+            flex: 1,
+            background: "#232427",
+            p: 3,
+            borderRadius: 2
+          }}
+        >
+
+          <Typography variant="h4">
+            Welcome Admin
+          </Typography>
+
+          <Typography>
+            Select an option from the panel
+          </Typography>
+
+        </Box>
+
+      </Box>
+
+    </Box>
+
   );
+
 }

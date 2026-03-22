@@ -40,6 +40,10 @@ public class Attendee {
 
     private Timestamp modifiedAt;
 
+    private String booked_by;
+
+    private String event_name;
+
     // getters setters
     public Long getUserId() {
         return userId;
@@ -94,5 +98,23 @@ public class Attendee {
     }
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+    public Timestamp getModifiedAt() {
+        return modifiedAt;
+    }
+    public void setModifiedAt(Timestamp modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+    public String getBooked_by() {
+        return booked_by;
+    }
+    public void setBooked_by(String booked_by) {
+        this.booked_by = booked_by;
+    }
+    public String getEvent_name() {
+        return event_name;
+    }
+    public void setEvent_name(String event_name) {
+        this.event_name = event_name;
     }
 }

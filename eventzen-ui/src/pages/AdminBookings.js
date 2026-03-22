@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { node } from "../services/api";
+import { spring } from "../services/api";
 
 import {
   Box, Typography, Table, TableHead,
@@ -10,36 +10,26 @@ import {
 import Stars from "../components/Stars";
 import DashboardNavbar from "../components/DashboardNavbar";
 
-export default function AdminVenues() {
+export default function AdminBookings() {
 
-  const [venues, setVenues] = useState([]);
+  const [bookings, setBookings] = useState([]);
 
   const load = () => {
-    node.get("/venues")
-      .then(res => {
-        setVenues(res.data);
-      })
-      .catch(err => {
-        console.error("Error loading venues:", err.response?.data || err.message);
-      });
+    spring.get("/bookings").then(res => {
+      setBookings(res.data);
+    });
   };
 
-  console.log("Loaded venues:", venues);
-
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(load, []);
 
 
   const approve = async (id) => {
-    try {
-      await node.put(`/venues/${id}`, {
-        status: 1
-      });
-      load();
-    } catch (err) {
-      console.error(`Error approving venue with id ${id}:`, err.response?.data || err.message);
-    }
+
+    await spring.put("/bookings/" + id, {
+      status: 1
+    });
+
+    load();
   };
 
 
@@ -53,7 +43,7 @@ export default function AdminVenues() {
       <Box sx={{ pt: 12, px: 3 }}>
 
         <Typography variant="h4">
-          Manage Venues
+          Manage Bookings
         </Typography>
 
         <Paper sx={{ background: "#232427" }}>
@@ -64,8 +54,9 @@ export default function AdminVenues() {
 
               <TableRow>
 
-                <TableCell sx={{ color: "white" }}>Name</TableCell>
-                <TableCell sx={{ color: "white" }}>City</TableCell>
+                <TableCell sx={{ color: "white" }}>ID</TableCell>
+                <TableCell sx={{ color: "white" }}>User</TableCell>
+                <TableCell sx={{ color: "white" }}>Event</TableCell>
                 <TableCell sx={{ color: "white" }}>Action</TableCell>
 
               </TableRow>
@@ -74,23 +65,29 @@ export default function AdminVenues() {
 
             <TableBody>
 
-              {venues.map(v => (
+              {bookings.map((b, i) => (
 
-                <TableRow key={v.id}>
+                <TableRow key={i}>
 
                   <TableCell sx={{ color: "white" }}>
-                    {v.name}
+                    {b.booking.id}
                   </TableCell>
 
                   <TableCell sx={{ color: "white" }}>
-                    {v.city}
+                    {b.booking.userId}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {b.event?.name}
                   </TableCell>
 
                   <TableCell>
 
                     <Button
                       variant="contained"
-                      onClick={() => approve(v.id)}
+                      onClick={() =>
+                        approve(b.booking.id)
+                      }
                     >
                       Approve
                     </Button>

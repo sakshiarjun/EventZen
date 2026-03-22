@@ -1,89 +1,168 @@
 import { useEffect, useState } from "react";
 import { spring } from "../services/api";
-import Navbar from "../components/Navbar";
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper
+} from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  Chip
+} from "@mui/material";
+
+import Stars from "../components/Stars";
+import DashboardNavbar from "../components/DashboardNavbar";
 
 export default function Bookings() {
 
-  const [data, setData] = useState([]);
+  const [bookings, setBookings] = useState([]);
 
   const user =
     JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
 
+    if (!user) return;
+
     spring.get("/bookings")
-      .then(res => {
+  .then(res => {
 
-        console.log(res.data); // debug
+    console.log("BOOKINGS API:", res.data);
 
-        const list =
-          res.data.filter(
-            x =>
-              x.booking &&
-              x.booking.userId === user.id
-          );
+    const myBookings =
+  res.data.filter(
+    b => b.booking.userId === user.id
+  );
 
-        setData(list);
+    console.log("FILTERED:", myBookings);
 
-      });
+    setBookings(myBookings);
+
+  });
 
   }, []);
 
+
+  const statusColor = (s) => {
+
+    if (s === 0) return "warning";
+    if (s === 1) return "success";
+
+    return "default";
+  };
+
+
   return (
 
-    <div className="bg-gray-100 min-h-screen">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "black",
+        color: "white",
+        position: "relative"
+      }}
+    >
 
-      <Navbar />
+      <Stars />
+      <Stars />
+      <DashboardNavbar />
 
-      <div className="max-w-6xl mx-auto p-4">
+      <Box
+        sx={{
+          pt: 12,
+          px: 3,
+          maxWidth: 1200,
+          margin: "auto"
+        }}
+      >
 
-        <h2 className="text-2xl font-bold mb-4">
+        <Typography variant="h4" mb={3} fontWeight={"bold"}>
           My Bookings
-        </h2>
+        </Typography>
 
-        {data.map(b => (
+<Paper sx={{ background: "#232427" }}>
 
-          <div
-            key={b.booking.id}
-            className="bg-white shadow p-4 mb-4"
-          >
+  <Table>
 
-            <h3>
-              Booking #{b.booking.id}
-            </h3>
+    <TableHead>
 
-            <p>
-              Event: {b.booking.eventId}
-            </p>
+      <TableRow>
 
-            <p>
-              Tickets: {b.booking.attendeeCount}
-            </p>
+        <TableCell sx={{ color: "white", fontWeight: "bold" }}>Event</TableCell>
+        <TableCell sx={{ color: "white", fontWeight: "bold" }}>City</TableCell>
+        <TableCell sx={{ color: "white", fontWeight: "bold" }}>Date</TableCell>
+        <TableCell sx={{ color: "white", fontWeight: "bold" }}>Attendees</TableCell>
+        <TableCell sx={{ color: "white", fontWeight: "bold" }}>Status</TableCell>
 
-            <h4>Attendees</h4>
+      </TableRow>
 
-            {b.attendees &&
-              b.attendees.map((a, i) => (
+    </TableHead>
 
-                <div key={i}>
 
-                  {a.name}
-                  <br/>
-                  {a.email}
-                  <br/>
-                  {a.phone}
+    <TableBody>
 
-                </div>
+      {bookings.map((b, i) => {
 
-              ))}
+        const booking = b.booking;
+        const attendees = b.attendees;
+        const event = b.event;
 
-          </div>
+        return (
 
-        ))}
+          <TableRow key={i}>
 
-      </div>
+            <TableCell sx={{ color: "white" }}>
+              {event.name}
+            </TableCell>
 
-    </div>
+            <TableCell sx={{ color: "white" }}>
+              {event.city}
+            </TableCell>
+
+            <TableCell sx={{ color: "white" }}>
+              {event.event_date}
+            </TableCell>
+
+            <TableCell sx={{ color: "white" }}>
+              {booking.attendeeCount}
+            </TableCell>
+
+            <TableCell>
+
+              <Chip
+                label={
+                  booking.status === 0
+                    ? "Pending"
+                    : "Approved"
+                }
+                color={statusColor(booking.status)}
+              />
+
+            </TableCell>
+
+          </TableRow>
+
+        );
+
+      })}
+
+    </TableBody>
+
+  </Table>
+
+</Paper>
+
+      </Box>
+
+    </Box>
 
   );
+
 }

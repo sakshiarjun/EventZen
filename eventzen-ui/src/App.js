@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 import MuiNavbar from "./components/MuiNavbar";
 import Landing from "./pages/Landing";
@@ -15,10 +16,12 @@ import AdminVendors from "./pages/AdminVendors";
 import AdminVenues from "./pages/AdminVenues";
 import EventDetails from "./pages/EventDetails";
 import PublicEvents from "./pages/PublicEvents";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>
 
         <Route path="/" element={<Landing />} />
@@ -35,7 +38,12 @@ function App() {
         <Route path="/admin/venues" element={<AdminVenues />} />
         <Route path="/event/:id" element={<EventDetails />} />
         <Route path="/events" element={<PublicEvents />} />
+
       </Routes>
+
+      {/* ✅ ADD HERE */}
+      <ToastContainer position="top-right" />
+
     </BrowserRouter>
   );
 }

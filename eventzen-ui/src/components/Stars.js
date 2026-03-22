@@ -8,7 +8,8 @@ export default function Stars() {
       style={{
         position: "absolute",
         inset: 0,
-        overflow: "hidden"
+        overflow: "hidden",
+        pointerEvents: "none" 
       }}
     >
 
@@ -25,7 +26,8 @@ export default function Stars() {
             left: Math.random() * 100 + "%",
             opacity: Math.random(),
             animation:
-              "moveStar 10s linear infinite"
+              "moveStar 10s linear infinite",
+            
           }}
         />
 

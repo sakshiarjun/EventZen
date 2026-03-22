@@ -1,4 +1,5 @@
 import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
+import { orange } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 
 export default function DashboardNavbar() {
@@ -31,7 +32,12 @@ export default function DashboardNavbar() {
           variant="h6"
           sx={{
             flexGrow: 1,
-            cursor: "pointer"
+            cursor: "pointer",
+            fontWeight: 900, 
+            background:
+                "linear-gradient(90deg,#ff3d00,#ff9100,#00e5ff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent"
           }}
           onClick={() => nav("/dashboard")}
         >
@@ -46,7 +52,7 @@ export default function DashboardNavbar() {
             color="inherit"
             onClick={() => nav("/bookings")}
           >
-            Upcoming
+            My Bookings
           </Button>
 
           <Button

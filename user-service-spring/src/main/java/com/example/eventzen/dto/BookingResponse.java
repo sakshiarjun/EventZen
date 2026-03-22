@@ -9,6 +9,7 @@ public class BookingResponse {
 
     private Booking booking;
     private List<Attendee> attendees;
+    private Object event; 
 
     public Booking getBooking() {
         return booking;
@@ -25,4 +26,12 @@ public class BookingResponse {
     public void setAttendees(List<Attendee> attendees) {
         this.attendees = attendees;
     }
+
+    public Object getEvent() {
+    return event;
+}
+
+    public void setEvent(Object event) {
+    this.event = event;
+}
 }

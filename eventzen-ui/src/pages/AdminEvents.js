@@ -1,78 +1,320 @@
 import { useEffect, useState } from "react";
 import { node } from "../services/api";
 
-import Navbar from "../components/Navbar";
-import EventForm from "../components/EventForm";
-import EventCard from "../components/EventCard";
+import {
+  Box,
+  Typography,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+  Paper,
+  TextField,
+  Grid
+} from "@mui/material";
+
+import Stars from "../components/Stars";
+import DashboardNavbar from "../components/DashboardNavbar";
 
 export default function AdminEvents() {
 
   const [events, setEvents] = useState([]);
-  const [selected, setSelected] = useState(null);
+
+  const [form, setForm] = useState({
+    name: "",
+    city: "",
+    category: "",
+    event_date: "",
+    price: "",
+    organizer: ""
+  });
 
   const load = () => {
-
-    node.get("/events")
-      .then(res => setEvents(res.data));
-
+    node.get("/events").then(res => {
+      setEvents(res.data);
+    });
   };
 
   useEffect(() => {
     load();
   }, []);
 
-  const save = async (data) => {
 
-    if (data.id)
-      await node.put("/events", data);
-    else
-      await node.post("/events", data);
+  const handleChange = e => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
 
-    setSelected(null);
+
+  const addEvent = async () => {
+
+    await node.post("/events", {
+      ...form,
+      status: 1,
+      active: 1,
+      created_by_role: "ADMIN",
+      created_by_name: "ADMIN"
+    });
+
     load();
   };
 
-  const remove = async (id) => {
 
-    await node.delete("/events/" + id);
+  const approve = async (id) => {
+
+    await node.put("/events/" + id, {
+      status: 1
+    });
 
     load();
   };
+
+
+  const userEvents =
+    events.filter(e =>
+      e.created_by_role === "USER"
+    );
+
+  const adminEvents =
+    events.filter(e =>
+      e.created_by_role === "ADMIN"
+    );
+
+    console.log("USER EVENTS", userEvents);
+    console.log("ADMIN EVENTS", adminEvents);
+
 
   return (
 
-    <div className="bg-gray-100 min-h-screen">
+    <Box sx={{ minHeight: "100vh", background: "black", color: "white" }}>
 
-      <Navbar />
+      <Stars />
+      <DashboardNavbar />
 
-      <div className="max-w-6xl mx-auto p-4">
+      <Box sx={{ pt: 12, px: 3 }}>
 
-        <h2 className="text-2xl font-bold">
-          Manage Events
-        </h2>
+        {/* ---------------- ADD EVENT ---------------- */}
 
-        <EventForm
-          onSave={save}
-          selected={selected}
-        />
+        <Typography variant="h4" mb={2}>
+          Add New Event
+        </Typography>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <Paper sx={{ p: 2, mb: 4, background: "#232427" }}>
 
-          {events.map(e => (
+          <Grid container spacing={2}>
 
-            <EventCard
-              key={e.id}
-              event={e}
-              onEdit={setSelected}
-              onDelete={remove}
-            />
+            <Grid item xs={6}>
+              <TextField
+                label="Name"
+                name="name"
+                fullWidth
+                onChange={handleChange}
+                sx={{ background: "white" }}
+              />
+            </Grid>
 
-          ))}
+            <Grid item xs={6}>
+              <TextField
+                label="City"
+                name="city"
+                fullWidth
+                onChange={handleChange}
+                sx={{ background: "white" }}
+              />
+            </Grid>
 
-        </div>
+            <Grid item xs={6}>
+              <TextField
+                label="Category"
+                name="category"
+                fullWidth
+                onChange={handleChange}
+                sx={{ background: "white" }}
+              />
+            </Grid>
 
-      </div>
+            <Grid item xs={6}>
+              <TextField
+                type="date"
+                name="event_date"
+                fullWidth
+                onChange={handleChange}
+                sx={{ background: "white" }}
+              />
+            </Grid>
 
-    </div>
+            <Grid item xs={6}>
+              <TextField
+                label="Price"
+                name="price"
+                fullWidth
+                onChange={handleChange}
+                sx={{ background: "white" }}
+              />
+            </Grid>
+
+            <Grid item xs={6}>
+              <TextField
+                label="Organizer"
+                name="organizer"
+                fullWidth
+                onChange={handleChange}
+                sx={{ background: "white" }}
+              />
+            </Grid>
+
+          </Grid>
+
+          <Button
+            variant="contained"
+            sx={{ mt: 2 }}
+            onClick={addEvent}
+          >
+            Add Event
+          </Button>
+
+        </Paper>
+
+
+        {/* ---------------- USER EVENTS ---------------- */}
+
+        <Typography variant="h4" mb={2}>
+          User Created Events (Need Approval)
+        </Typography>
+
+        <Paper sx={{ background: "#232427", mb: 4 }}>
+
+          <Table>
+
+            <TableHead>
+              <TableRow>
+
+                <TableCell sx={{ color: "white" }}>Name</TableCell>
+                <TableCell sx={{ color: "white" }}>City</TableCell>
+                <TableCell sx={{ color: "white" }}>Date</TableCell>
+                <TableCell sx={{ color: "white" }}>Requested By</TableCell>
+                <TableCell sx={{ color: "white" }}>Price</TableCell>
+                <TableCell sx={{ color: "white" }}>Action</TableCell>
+
+              </TableRow>
+            </TableHead>
+
+
+            <TableBody>
+
+              {userEvents.map(e => (
+
+                <TableRow key={e.id}>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.name}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.city}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.event_date}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.created_by_name}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.price}
+                  </TableCell>
+
+                  <TableCell>
+
+                    {e.status === 0 && (
+
+                      <Button
+                        variant="contained"
+                        onClick={() => approve(e.id)}
+                      >
+                        Approve
+                      </Button>
+
+                    )}
+
+                  </TableCell>
+
+                </TableRow>
+
+              ))}
+
+            </TableBody>
+
+          </Table>
+
+        </Paper>
+
+
+        {/* ---------------- ADMIN EVENTS ---------------- */}
+
+        <Typography variant="h4" mb={2}>
+          All Events
+        </Typography>
+
+        <Paper sx={{ background: "#232427" }}>
+
+          <Table>
+
+            <TableHead>
+
+              <TableRow>
+
+                <TableCell sx={{ color: "white" }}>Name</TableCell>
+                <TableCell sx={{ color: "white" }}>City</TableCell>
+                <TableCell sx={{ color: "white" }}>Date</TableCell>
+                <TableCell sx={{ color: "white" }}>Role</TableCell>
+
+              </TableRow>
+
+            </TableHead>
+
+            <TableBody>
+
+              {events.map(e => (
+
+                <TableRow key={e.id}>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.name}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.city}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.event_date}
+                  </TableCell>
+
+                  <TableCell sx={{ color: "white" }}>
+                    {e.created_by_role}
+                  </TableCell>
+
+                </TableRow>
+
+              ))}
+
+            </TableBody>
+
+          </Table>
+
+        </Paper>
+
+      </Box>
+
+    </Box>
+
   );
+
 }

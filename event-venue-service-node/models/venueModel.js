@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-exports.getAllVenues = (callback) => {
+exports.getVenues = (callback) => {
     const query = 'SELECT * FROM venues WHERE active=1';
     db.query(query, (err, results) => {
         if (err) {
@@ -29,4 +29,31 @@ exports.deleteVenue = (id, callback) => {
         }
         callback(null, results.affectedRows);
     });
+};
+
+exports.getVenuesByCity = (city, callback) => {
+    const query = 'SELECT * FROM venues WHERE city = ? AND active=1';
+    db.query(query, [city], (err, results) => {
+        if (err) {
+            return callback(err);
+        }
+        callback(null, results);
+    });
+};
+
+exports.updateVenue = (id, status, callback) => {
+
+  const sql =
+    "UPDATE venues SET status=? WHERE id=?";
+
+  db.query(
+    sql,
+    [status, id],
+    (err, result) => {
+
+      if (err)
+        return callback(err);
+
+      callback(null, result);
+});
 };

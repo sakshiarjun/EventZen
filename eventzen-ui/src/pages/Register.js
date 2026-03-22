@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { spring } from "../services/api";
+import { motion } from "framer-motion";
 
 import {
   Box,
@@ -54,8 +55,20 @@ export default function Register() {
   };
 
   return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "black",
+        color: "white",
+        position: "relative"
+      }}
+    >
 
     <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
       sx={{
         minHeight: "100vh",
         background: "black",
@@ -179,6 +192,7 @@ export default function Register() {
 
       </Box>
 
+    </Box>
     </Box>
 
   );

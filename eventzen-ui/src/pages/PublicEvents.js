@@ -3,6 +3,7 @@ import { node } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import Stars from "../components/Stars";
 import LandingNavbar from "../components/LandingNavbar";
+import {motion} from "framer-motion";
 
 
 import {
@@ -50,17 +51,34 @@ const openEvent = (id) => {
 };
 
   return (
-  <Box
-    sx={{
-      minHeight: "100vh",
-      background: "black",
-      color: "white",
-      position: "relative",
-      overflow: "hidden",
-    }}
-  >
-    <Stars />
 
+    <Box
+      sx={{
+        background: "black",
+        color: "white",
+        minHeight: "200vh",
+        position: "relative",
+        overflow: "hidden"
+      }}
+    >
+
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        background: "black",
+        color: "white",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+    <Stars />
+    <Stars />
     <LandingNavbar />
 
     {/* Snackbar moved here — higher in the tree, still inside Box */}
@@ -124,12 +142,13 @@ const openEvent = (id) => {
             <Card
               sx={{
                 marginTop: 3,
+                marginLeft: 2,
                 cursor: "pointer",
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.3)",
                 borderRadius: 2,
-                height: 300,
-                width: 200,           // consider making this more responsive (e.g. 100%)
+                height: 320,
+                width: 220,           // consider making this more responsive (e.g. 100%)
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -177,6 +196,7 @@ const openEvent = (id) => {
         Discover More →
       </Button>
     </Container>
+  </Box>
   </Box>
 );
 }

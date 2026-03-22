@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.eventzen.service.BookingService;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.eventzen.dto.BookingRequest;
@@ -36,4 +38,12 @@ public class BookingController {
 
         return bookingService.getAllBookings();
     }
+
+    @PutMapping("/{id}")
+    public Booking updateStatus(
+        @PathVariable Long id,
+        @RequestBody Booking b) {
+
+    return bookingService.updateStatus(id, b.getStatus());
+}
 }

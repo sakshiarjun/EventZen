@@ -25,7 +25,9 @@ export default function MuiNavbar() {
 
         <Typography
           variant="h6"
-          sx={{ flexGrow: 1, cursor: "pointer" }}
+          sx={{ flexGrow: 1, cursor: "pointer",
+            fontWeight:900
+           }}
           onClick={() => nav("/dashboard")}
         >
           EventZen
