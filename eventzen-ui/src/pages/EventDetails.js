@@ -64,10 +64,57 @@ export default function EventDetails() {
   };
 
 
+  const validateAttendees = () => {
+    for (const attendee of attendees) {
+      if (!attendee.name || !attendee.email || !attendee.phone) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  //BOOK EVENT FUNCTION
   const book = async () => {
 
-    const user =
+    const user =  
       JSON.parse(localStorage.getItem("user"));
+
+    if (attendees.length !== tickets) {
+    toast.warning("Enter attendee details");
+    return;
+  }
+
+
+    for (let i = 0; i < attendees.length; i++) 
+    {
+
+    if (
+      !attendees[i].name ||
+      !attendees[i].email ||
+      !attendees[i].phone
+    ) {
+      toast.warning(
+        `Please fill all details for Attendee ${i + 1}`
+      );
+      return;
+    }
+    if ( !attendees[i].phone || attendees[i].phone.length !== 10) 
+      {
+        toast.warning(`Phone must be 10 digits for Attendee ${i + 1}`);
+        return;
+      }
+      const emailRegex =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(attendees[i].email)) {
+    toast.warning(
+      `Invalid email for Attendee ${i + 1}`
+    );
+    return;
+  }
+
+  }
+    
 
     if (!user) {
       toast.error("Please login to book");
@@ -139,26 +186,56 @@ export default function EventDetails() {
 
           <CardContent>
 
-            <Typography variant="h4">
+            <Typography variant="h4" fontWeight={"bold"}>
               {event.name}
-            </Typography>
-
-            <Typography>
-              {event.city}
-            </Typography>
-
-            <Typography>
-              ₹ {event.price}
             </Typography>
 
             <Typography sx={{ mt: 2 }}>
               {event.description}
             </Typography>
 
+            <Typography variant="h5" mt={2}>
+              ₹ {event.price}
+            </Typography>
+
+            <Typography variant="h5">
+          {event.city} -{" "}
+          {new Intl.DateTimeFormat("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+          }).format(new Date(event.event_date))}
+        </Typography>
+
+            <Typography variant="h5">
+
+  {new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true
+  }).format(
+    new Date(`1970-01-01T${event.start_time}`)
+  )}
+
+  {" "}to{" "}
+
+  {new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true
+  }).format(
+    new Date(`1970-01-01T${event.end_time}`)
+  )}
+
+</Typography>
+
+ 
+
 
             {/* tickets */}
 
-            <Typography sx={{ mt: 3 }}>
+            <Typography sx={{ mt: 5 }}>
               Number of Tickets
             </Typography>
 
@@ -188,6 +265,7 @@ export default function EventDetails() {
 
                 <TextField
                   placeholder="Name"
+                  required
                   fullWidth
                   sx={{
                     background: "white",
@@ -203,35 +281,46 @@ export default function EventDetails() {
                 />
 
                 <TextField
-                  placeholder="Email"
-                  fullWidth
-                  sx={{
-                    background: "white",
-                    mb: 1
-                  }}
-                  onChange={e =>
-                    changeAttendee(
-                      i,
-                      "email",
-                      e.target.value
-                    )
-                  }
-                />
+  placeholder="Email"
+  required
+  type="email"
+  fullWidth
+  sx={{
+    background: "white",
+    mb: 1
+  }}
+  inputProps={{
+    pattern: "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$"
+  }}
+  onChange={e =>
+    changeAttendee(
+      i,
+      "email",
+      e.target.value
+    )
+  }
+/>
 
                 <TextField
-                  placeholder="Phone"
-                  fullWidth
-                  sx={{
-                    background: "white"
-                  }}
-                  onChange={e =>
-                    changeAttendee(
-                      i,
-                      "phone",
-                      e.target.value
-                    )
-                  }
-                />
+  placeholder="Phone"
+  required
+  fullWidth
+  type="tel"
+  sx={{
+    background: "white"
+  }}
+  inputProps={{
+    maxLength: 10,
+    pattern: "[0-9]{10}"
+  }}
+  onChange={e =>
+    changeAttendee(
+      i,
+      "phone",
+      e.target.value.replace(/\D/g, "")
+    )
+  }
+/>
 
               </Box>
 

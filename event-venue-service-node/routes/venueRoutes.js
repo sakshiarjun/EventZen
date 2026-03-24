@@ -5,6 +5,7 @@ const db = require("../config/db");
 
 router.get("/", controller.getVenues);
 router.get("/by-city", controller.getVenuesByCity);
+router.get("/:id", controller.getVenueById);
 router.post("/", controller.createVenue);
 router.delete("/:id", controller.deleteVenue);
 router.put("/:id", controller.updateVenue);

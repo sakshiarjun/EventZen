@@ -15,6 +15,7 @@ import com.example.eventzen.dto.BookingRequest;
 import com.example.eventzen.dto.BookingResponse;
 import com.example.eventzen.entity.Booking;
 import java.util.List;
+import java.util.Map;
 import com.example.eventzen.repository.BookingRepository;
  
 
@@ -42,8 +43,9 @@ public class BookingController {
     @PutMapping("/{id}")
     public Booking updateStatus(
         @PathVariable Long id,
-        @RequestBody Booking b) {
+        @RequestBody Map<String, Object> body) {
 
-    return bookingService.updateStatus(id, b.getStatus());
+    Integer status = (Integer) body.get("status");
+    return bookingService.updateStatus(id, status);
 }
 }

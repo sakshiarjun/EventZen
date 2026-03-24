@@ -6,6 +6,7 @@
     "@mui/material": "^7.3.9",
     "framer-motion": "^12.38.0",
     "react-slick": "^0.31.0",
+    "recharts": "^3.8.0",
     "slick-carousel": "^1.8.1"
   }
 }

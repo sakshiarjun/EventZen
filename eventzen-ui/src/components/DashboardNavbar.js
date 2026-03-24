@@ -57,6 +57,13 @@ export default function DashboardNavbar() {
 
           <Button
             color="inherit"
+            onClick={() => nav("/my-events")}
+          >
+            My Events
+          </Button>
+
+          <Button
+            color="inherit"
             onClick={() => nav("/profile")}
           >
             {user?.name}

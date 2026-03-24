@@ -7,7 +7,7 @@ import {
   MenuItem,
   Typography,
   Card,
-  CardContent,
+  CardContent, 
 } from "@mui/material";
 
 import { node } from "../services/api";
@@ -15,6 +15,19 @@ import { Bold } from "lucide-react";
 import { toast } from "react-toastify";
 
 export default function CreateEventForm() {
+
+  const [vendors, setVendors] = useState([]);
+  const [vendorSearch, setVendorSearch] = useState("");
+  const [vendorType, setVendorType] = useState("");
+  const [selectedVendors, setSelectedVendors] = useState([]);
+
+  useEffect(() => {
+
+  fetch("http://localhost:5173/api/vendors")
+    .then(res => res.json())
+    .then(data => setVendors(data));
+
+}, []);
 
   const [form, setForm] = useState({
     name: "",
@@ -71,6 +84,40 @@ export default function CreateEventForm() {
   "Food",
   "Travel"
 ];
+
+const service_Types = [
+  "Catering",
+  "Decoration",
+  "Photography",
+  "Videography",
+  "Music / DJ",
+  "Lighting",
+  "Sound System",
+  "Makeup & Styling",
+  "Security",
+  "Event Planner"
+];
+
+const filteredVendors = vendors.filter(v => {
+
+  const cityMatch =
+    form.city &&
+    v.city === form.city;
+
+  const typeMatch =
+    !vendorType ||
+    v.service_Type === vendorType;
+
+  const searchMatch =
+    v.name
+      ?.toLowerCase()
+      .includes(
+        vendorSearch.toLowerCase()
+      );
+
+  return cityMatch && typeMatch && searchMatch;
+
+});
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -81,7 +128,7 @@ export default function CreateEventForm() {
 
       // Prevent selecting today's or past dates
       if (selectedDate <= today) {
-        toast.error("Event date must be from the next day onwards.");
+        toast.error("Cannot book for today or past dates");
         return;
       }
     }
@@ -101,30 +148,63 @@ export default function CreateEventForm() {
   };
 
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
 
   const user =
     JSON.parse(localStorage.getItem("user"));
 
   try {
 
-    await node.post("/events", {
+    // ✅ create event
 
-      ...form,
+    const res = await node.post(
+      "/events",
+      {
+        ...form,
 
-      status: 0,
-      active: 1,
+        status: user.role === "ADMIN" ? 1 : 0,
+        active: 1,
 
-      organizer: user.name,
+        organizer: user.name,
 
-      created_by_role: "USER",
-      created_by_name: user.name
+        created_by_role: user.role,
+        created_by_name: user.name
+      }
+    );
 
-    });
+    const eventId = res.data.id;
 
-    toast.success("Event sent for approval");
+    console.log("Event id:", eventId);
+
+
+    // ✅ save vendors
+
+    for (let vId of selectedVendors) {
+
+      const vendor =
+        vendors.find(
+          v => v.id === vId
+        );
+
+      await node.post(
+        "/event-vendors",
+        {
+          event_id: eventId,
+          vendor_id: vId,
+          service_type:
+            vendor.service_Type
+        }
+      );
+
+    }
+
+    toast.success(
+      "Event sent for approval"
+    );
 
   } catch (err) {
+
+    console.log(err);
 
     toast.error("Failed");
 
@@ -152,6 +232,32 @@ export default function CreateEventForm() {
 
   }, [form.city]);
 
+ const generateDesc = async () => {
+
+  try {
+
+    const res = await node.post(
+      "/events/generateDescription",
+      {
+        name: form.name,
+        city: form.city,
+        category: form.category
+      }
+    );
+
+    setForm({
+      ...form,
+      description: res.data
+    });
+
+  } catch {
+
+    toast.error("AI failed");
+
+  }
+
+};
+
   return (
     <Card
       sx={{
@@ -163,43 +269,28 @@ export default function CreateEventForm() {
       }}
     >
 
-      <Typography variant="h5" mb={4} 
-       sx={{
-        marginTop: -2,
-        background: "linear-gradient(90deg,#ff3d00,#ff9100,#00e5ff)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        fontWeight: "bold"
-       }}>
-        Register your next Event with us!
-      </Typography>
-
       <Grid container spacing={3} sx={{ width: "100%" }}> {/* Ensures the grid spans full width */}
 
-        <Grid item xs={12} sm={12} md={12}>
-          <Typography variant="subtitle1" color="white" gutterBottom>
-            Event Name
-          </Typography>
-          <TextField
-            label="Enter Event Name"
-            name="name"
-            fullWidth
-            onChange={handleChange}
-            sx={{ ...inputStyle, width: 500 }}
-          />
-        </Grid>
+        <Grid item xs={6}>
+              <Typography sx={{ color: "white", mb: 1 }}>Event Name</Typography>
+              <TextField
+                label="Name"
+                name="name"
+                fullWidth
+                onChange={handleChange}
+                sx={{ background: "white",  backgroundColor: "gray",}}
+              />
+            </Grid>
 
-        <Grid item xs={12} sm={12} md={12}>
-          <Typography variant="subtitle1" color="white" gutterBottom>
-            City
-          </Typography>
-          <TextField
+        <Grid item xs={6}>
+              <Typography sx={{ color: "white", mb: 1, }}>City</Typography>
+              <TextField
             select
             label="Select City"
             name="city"
             fullWidth
             onChange={handleChange}
-            sx={{ ...inputStyle, minWidth: 200 }} // Increased width for better usability
+            sx={{ minWidth: 200, backgroundColor: "gray" }} // Increased width for better usability
           >
             {cities.map((city) => (
               <MenuItem key={city} value={city}
@@ -208,60 +299,17 @@ export default function CreateEventForm() {
               </MenuItem>
             ))}
           </TextField>
-        </Grid>
+            </Grid>
 
-        <Grid item xs={12} sm={12} md={12}>
-          <Typography variant="subtitle1" color="white" gutterBottom>
-            Event Date
-          </Typography>
-          <TextField
-            type="date"
-            name="event_date"
-            fullWidth
-            onChange={handleChange}
-            sx={inputStyle}
-          />
-        </Grid>
-
-        <Grid item xs={6}>
-          <Typography variant="subtitle1" color="white" gutterBottom>
-            Estimated Cost (₹)
-          </Typography>
-          <TextField
-            label="Enter Estimated Cost"
-            name="price"
-            fullWidth
-            onChange={handleChange}
-            sx={inputStyle}
-          />
-        </Grid>
-
-        <Grid item xs={6}>
-          <Typography variant="subtitle1" color="white" gutterBottom>
-            Description
-          </Typography>
-          <TextField
-            label="Description"
-            name="description"
-            fullWidth
-            multiline
-            rows={3}
-            onChange={handleChange}
-            sx={inputStyle}
-          />
-        </Grid>
-
-        <Grid item xs={6}>
-          <Typography variant="subtitle1" color="white" gutterBottom>
-            Category
-          </Typography>
-          <TextField
+            <Grid item xs={6}>
+              <Typography sx={{ color: "white", mb: 1 }}>Category</Typography>
+              <TextField
             select
             label="Select Category"
             name="category"
             fullWidth
             onChange={handleChange}
-            sx={{ ...inputStyle, minWidth: 200 }} // Increased width for better usability
+            sx={{  minWidth: 200, backgroundColor: "gray" }} // Increased width for better usability
           >
             {categories.map((category) => (
               <MenuItem key={category} value={category}
@@ -270,9 +318,58 @@ export default function CreateEventForm() {
               </MenuItem>
             ))}
           </TextField>
+            </Grid>
+
+        <Grid item xs={6}>
+          <Typography variant="subtitle1" color="white" gutterBottom>
+            Event Date
+          </Typography>
+          <TextField
+            type="date"
+            name="event_date"
+            fullWidth
+            onChange={handleChange}
+            sx={{inputStyle, backgroundColor: "gray",}}
+          />
         </Grid>
 
-   <Grid item xs={12}>
+        <Grid item xs={6}>
+          <Typography variant="subtitle1" color="white" gutterBottom>
+            Ticket Price (₹)
+          </Typography>
+          <TextField
+            label="Enter Ticket Price"
+            name="price"
+            fullWidth
+            onChange={handleChange}
+            sx={{inputStyle, backgroundColor: "gray",}}
+          />
+        </Grid>
+
+        <Grid item xs={6}>
+          <Typography variant="subtitle1" color="white" gutterBottom>
+            Description
+          </Typography>
+          <TextField
+            name="Description"
+            value={form.description}
+            fullWidth
+            multiline
+            rows={5}
+            onChange={handleChange}
+            sx={{inputStyle, backgroundColor: "gray",}}
+          />
+          <Button
+            variant="outlined"
+            sx={{ mt: 1.5 }}
+            onClick={generateDesc}
+          >
+            Generate with AI
+          </Button>
+        </Grid>
+
+
+   <Grid item xs={6}>
 
   <Typography variant="subtitle1" color="white">
     Venue
@@ -308,7 +405,7 @@ export default function CreateEventForm() {
       ...inputStyle,
       "& .MuiInputBase-input": { color: "black" },
       "& .MuiOutlinedInput-root": {
-        backgroundColor: "white"
+        backgroundColor: "gray", minWidth: 200
       }
     }}
   >
@@ -326,6 +423,19 @@ export default function CreateEventForm() {
   </TextField>
 
 </Grid>
+
+    <Grid item xs={6}>
+      <Typography variant="subtitle1" color="white">
+        Capacity
+      </Typography>
+      <Box sx={{ backgroundColor: 'gray', padding: '8px', borderRadius: '4px' }}>
+        <Typography variant="subtitle1" color="black" 
+        sx={{ minWidth: 100, minHeight: 40, display: "flex", alignItems: "center",  }}>
+          {venues.find(v => v.id === form.venue_id)?.capacity || "N/A"}
+        </Typography>
+      </Box>
+    </Grid>
+
         <Grid item xs={6}>
           <Typography variant="subtitle1" color="white" gutterBottom>
             Start Time
@@ -335,7 +445,12 @@ export default function CreateEventForm() {
             name="start_time"
             fullWidth
             onChange={handleChange}
-            sx={inputStyle}
+            slotProps={{input: 
+              {
+                step: 1800   // 30 minutes
+            }}  
+              }
+            sx={{inputStyle, backgroundColor: "gray",}}
           />
         </Grid>
 
@@ -348,24 +463,209 @@ export default function CreateEventForm() {
             name="end_time"
             fullWidth
             onChange={handleChange}
-            sx={inputStyle}
+            slotProps={{input: 
+              {
+                step: 1800   // 30 minutes
+            }}  
+              }
+            sx={{inputStyle, backgroundColor: "gray",}}
           />
         </Grid>
-
-        
-
-        <Grid item xs={12}>
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{ background: "#ff6a00", fontWeight: "bold" }}
-            onClick={handleSubmit}
-          >
-            Create Event
-          </Button>
-        </Grid>
-
       </Grid>
+      <Typography variant="h5" mt={3} mb={1} color="white" fontWeight={"bold"} >
+        Add Vendors for your event
+      </Typography>
+      <Typography mt={3} mb={1} color="white">
+        Select Categories to filter vendors
+    </Typography>
+
+    <Box mt={2}>
+
+  {/* FILTERS */}
+
+  <Grid container spacing={2} mb={2}>
+
+    <Grid item xs={6}>
+
+      <TextField
+        label="Search Vendor"
+        //disabled={!form.city}
+        onMouseDown={(e) => {
+          if (!form.city) {
+            e.preventDefault();
+            toast.warning("Select city first to view vendors");
+          }
+        }}
+        fullWidth
+        value={vendorSearch}
+        onChange={(e) =>
+          setVendorSearch(e.target.value)
+        }
+        sx={{ background: "white", backgroundColor: "gray", }}
+      />
+
+    </Grid>
+
+    <Grid item xs={6}>
+
+      <TextField
+        select
+        label="Service Type"
+        
+        onMouseDown={(e) => {
+          if (!form.city) {
+            e.preventDefault();
+            toast.warning("Select city first to view vendors");
+          }
+        }}
+        disabled={!form.city}
+        fullWidth
+        value={vendorType}
+        onChange={(e) =>
+          setVendorType(e.target.value)
+        }
+        sx={{ background: "white", minWidth: 200, backgroundColor: "gray", }}
+      >
+
+        <MenuItem value="">
+          All
+        </MenuItem>
+
+        {service_Types.map(t => (
+
+          <MenuItem key={t} value={t}>
+            {t}
+          </MenuItem>
+
+        ))}
+
+      </TextField>
+
+    </Grid>
+
+  </Grid>
+
+
+  {/* TABLE */}
+
+  <Box
+  onMouseDown={(e) => {
+    if (!form.city) {
+      e.preventDefault();
+      toast.warning("Select city first to view vendors");
+    }
+  }}
+
+  sx={{
+    maxHeight: 300,
+    overflow: "auto",
+    background: form.city
+      ? "#1b1c1e"
+      : "#555",
+    opacity: form.city ? 1 : 0.5,
+    pointerEvents: form.city
+      ? "auto"
+      : "none",
+    p: 2,
+    borderRadius: 2
+  }}
+  >
+
+    <table
+      style={{
+        width: "100%",
+        color: "white",
+        textAlign: "left" // Default alignment for the table
+      }}
+    >
+
+      <thead
+        style={{
+          textAlign: "left" // Center align the header
+        }}
+      >
+
+        <tr>
+
+          <th>Select</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>City</th>
+          <th>Price</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {filteredVendors.map(v => (
+
+          <tr key={v.id}>
+
+            <td>
+
+              <input
+                type="checkbox"
+
+                checked={
+                  selectedVendors.includes(v.id)
+                }
+
+                onChange={() => {
+
+                  if (
+                    selectedVendors.includes(v.id)
+                  ) {
+
+                    setSelectedVendors(
+                      selectedVendors.filter(
+                        x => x !== v.id
+                      )
+                    );
+
+                  } else {
+
+                    setSelectedVendors([
+                      ...selectedVendors,
+                      v.id
+                    ]);
+
+                  }
+
+                }}
+              />
+
+            </td>
+
+            <td>{v.name}</td>
+
+            <td>{v.service_Type}</td>
+
+            <td>{v.city}</td>
+
+            <td>₹ {v.price}</td>
+
+          </tr>
+
+        ))}
+
+      </tbody>
+
+    </table>
+
+  </Box>
+
+</Box>
+
+    <Button
+      variant="contained"
+      fullWidth
+      sx={{ background: "#ff6a00", fontWeight: "bold", mt: 3 }}
+      onClick={handleSubmit}
+    >
+      Create Event
+    </Button>
 
     </Card>
   );

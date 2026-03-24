@@ -20,7 +20,7 @@ export default function EventCard({ event }) {
         border: "1px solid rgba(255,255,255,0.3)",
         borderRadius: 2,
         height: 320,
-        width: "100%",
+        width: 240,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",

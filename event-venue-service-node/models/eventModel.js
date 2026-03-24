@@ -40,7 +40,7 @@ exports.createEvent = (data, callback) => {
             data.price,
             data.image_url || null,
             data.organizer,
-            0,
+            data.status,
             1,
             data.created_by_role,
             data.created_by_name
@@ -75,4 +75,21 @@ exports.getEventById = (id, callback) => {
         }
         callback(null, results[0]);
     });
+};
+
+exports.updateEvent = (id, data, callback) => {
+
+    const sql =
+        `UPDATE events
+         SET status=?
+         WHERE id=?`;
+
+    db.query(
+        sql,
+        [
+            data.status,
+            id
+        ],
+        callback
+    );
 };

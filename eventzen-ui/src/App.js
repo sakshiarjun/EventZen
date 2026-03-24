@@ -16,6 +16,9 @@ import AdminVendors from "./pages/AdminVendors";
 import AdminVenues from "./pages/AdminVenues";
 import EventDetails from "./pages/EventDetails";
 import PublicEvents from "./pages/PublicEvents";
+import AdminBookings from "./pages/AdminBookings";
+import Profile from "./pages/Profile";
+import MyEvents from "./pages/MyEvents";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -36,9 +39,11 @@ function App() {
         <Route path="/admin/events" element={<AdminEvents />} />
         <Route path="/admin/vendors" element={<AdminVendors />} />
         <Route path="/admin/venues" element={<AdminVenues />} />
+        <Route path="/admin/bookings" element={<AdminBookings />} />
         <Route path="/event/:id" element={<EventDetails />} />
         <Route path="/events" element={<PublicEvents />} />
-
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/my-events" element={<MyEvents />} />
       </Routes>
 
       {/* ✅ ADD HERE */}

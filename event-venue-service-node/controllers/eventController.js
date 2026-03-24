@@ -62,25 +62,17 @@ exports.getEventById = (req, res) => {
 };
 
 exports.updateEvent = (req, res) => {
+    const eventId = req.params.id;
+    const updateData = req.body;
 
-  const id = req.params.id;
-  const { status } = req.body;
+    eventModel.updateEvent(eventId, updateData, (err, affectedRows) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error updating event.' });
+        }
+        if (affectedRows === 0) {
+            return res.status(404).json({ message: 'Event not found.' });
+        }
+        res.json({ message: 'Event updated successfully.' });
+    });
 
-  const sql =
-    "UPDATE events SET status=? WHERE id=?";
-
-  db.query(
-    sql,
-    [status, id],
-    (err, result) => {
-
-      if (err)
-        return res.status(500).json(err);
-
-      res.json({
-        message: "Event updated"
-      });
-
-    }
-  );
 };

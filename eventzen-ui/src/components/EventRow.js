@@ -1,4 +1,4 @@
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import EventCard from "./EventCard";
 
 export default function EventRow({ title, events }) {
@@ -15,15 +15,13 @@ export default function EventRow({ title, events }) {
         {title}
       </Typography>
 
-      <Grid container spacing={3}>
-
+      <Box sx={{ display: "flex", overflowX: "auto", whiteSpace: "nowrap", gap: 3, pb: 2 }}>
         {events.map((e) => (
-          <Grid item xs={12} sm={6} md={4} key={e.id}>
+          <Box key={e.id} sx={{ flex: "0 0 auto" }}>
             <EventCard event={e} />
-          </Grid>
+          </Box>
         ))}
-
-      </Grid>
+      </Box>
 
     </Box>
 

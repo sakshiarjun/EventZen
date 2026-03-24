@@ -9,6 +9,21 @@ exports.getAllVenues = (req, res) => {
     });
 };
 
+exports.getVenueById = (req, res) => {
+    const venueId = req.params.id;
+
+    venueModel.getVenueById(venueId, (err, venue) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error fetching venue.' });
+        }
+        if (!venue) {
+            return res.status(404).json({ message: 'Venue not found.' });
+        }
+        res.json(venue);
+    });
+
+};
+
 exports.createVenue = (req, res) => {
     const venueData = req.body;
     venueModel.createVenue(venueData, (err, venueId) => {
@@ -56,19 +71,36 @@ exports.getVenuesByCity = (req, res) => {
 
 exports.updateVenue = (req, res) => {
 
-  const id = req.params.id;
-  const { status } = req.body;
+  const venueId = req.params.id;
 
-  const sql =
-    "UPDATE venues SET status=? WHERE id=?";
+  const {
+    name,
+    city,
+    capacity,
+    price,
+    status
+  } = req.body;
 
-  db.query(
-    sql,
-    [status, id],
-    (err, result) => {
+  venueModel.updateVenue(
+    venueId,
+    name,
+    city,
+    capacity,
+    price,
+    status,
+    (err, affectedRows) => {
 
-      if (err)
-        return res.status(500).json(err);
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Error updating venue" });
+      }
+
+      if (affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ message: "Venue not found" });
+      }
 
       res.json({
         message: "Venue updated"

@@ -316,22 +316,22 @@ const handleSearch = (e) => {
         {/* Create Events Form */}
         <Box mt={30} ref={createRef}>
           <Typography variant="h5" fontWeight="bold" mb={2}>
-            Create Event
+            .
           </Typography>
 
         {/* your create event form here */}
 
-        <Card
-          sx={{
-          background: "#232427",
-          p: 3,
-          borderRadius: 3,
-          }}>
-
-          <CreateEventForm />
-
-        </Card>
-
+          <Typography variant="h4" mb={2} 
+       sx={{
+        marginTop: 2,
+        background: "linear-gradient(90deg,#ff3d00,#ff9100,#00e5ff)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        fontWeight: "bold"
+       }}>
+        Register your next Event with us!
+      </Typography>
+      <CreateEventForm />
       </Box>
         
 

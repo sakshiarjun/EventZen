@@ -2,18 +2,58 @@ import { useEffect, useState } from "react";
 import { spring } from "../services/api";
 
 import {
-  Box, Typography, Table, TableHead,
-  TableRow, TableCell, TableBody,
-  Paper, Button
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Chip,Dialog,
+  DialogTitle, Checkbox,
+  DialogContent,
+  Button
 } from "@mui/material";
 
 import Stars from "../components/Stars";
-import DashboardNavbar from "../components/DashboardNavbar";
+import AdminNavbar from "../components/AdminNavbar";
+import { toast } from "react-toastify";
 
 export default function AdminBookings() {
 
   const [bookings, setBookings] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
+  const approveBooking = async (id) => {
+
+  await spring.put(
+    "/bookings/" + id,
+    {
+      status: 1
+    }
+  );
+  toast.success("Booking approved");
+  load();
+
+};
+
+const cancelBooking = async (id) => {
+
+  await spring.put(
+    "/bookings/" + id,
+    {
+      status: 0
+    }
+  );
+  toast.error("Booking cancelled");
+  load();
+};
   const load = () => {
     spring.get("/bookings").then(res => {
       setBookings(res.data);
@@ -22,87 +62,328 @@ export default function AdminBookings() {
 
   useEffect(load, []);
 
-
-  const approve = async (id) => {
-
-    await spring.put("/bookings/" + id, {
-      status: 1
-    });
-
-    load();
+  const statusColor = (s) => {
+    if (s === 0) return "warning";
+    if (s === 1) return "success";
+    return "default";
   };
 
+  // group by eventId
+
+  const eventsMap = {};
+
+  bookings.forEach(b => {
+
+    const eventId = b.booking.eventId;
+
+    if (!eventsMap[eventId]) {
+      eventsMap[eventId] = {
+        event: b.event,
+        bookings: []
+      };
+    }
+
+    eventsMap[eventId].bookings.push(b);
+    console.log(b);
+  });
+
+  const eventsList = Object.values(eventsMap);
+
+  // pending events
+
+  const pendingEvents = eventsList.filter(e =>
+    e.bookings.some(
+      b => b.booking.status === 0
+    )
+  );
 
   return (
 
     <Box sx={{ minHeight: "100vh", background: "black", color: "white" }}>
 
       <Stars />
-      <DashboardNavbar />
+      <AdminNavbar />
 
       <Box sx={{ pt: 12, px: 3 }}>
 
-        <Typography variant="h4">
+        <Typography variant="h4" fontWeight="bold">
           Manage Bookings
         </Typography>
 
-        <Paper sx={{ background: "#232427" }}>
 
-          <Table>
+        {/* ---------- PENDING ---------- */}
 
-            <TableHead>
+        <Typography variant="h5" mt={4} fontWeight={"bold"}>
+          Pending Approvals
+        </Typography>
 
-              <TableRow>
+        <Grid container spacing={2} mt={1}>
 
-                <TableCell sx={{ color: "white" }}>ID</TableCell>
-                <TableCell sx={{ color: "white" }}>User</TableCell>
-                <TableCell sx={{ color: "white" }}>Event</TableCell>
-                <TableCell sx={{ color: "white" }}>Action</TableCell>
+          {pendingEvents.map((e, i) => (
 
-              </TableRow>
+            <Grid item key={i}>
 
-            </TableHead>
+              <Card
+                sx={{
+                  width: 250,
+                  cursor: "pointer",
+                  background: "#232427",
+                  color: "white"
+                }}
+                onClick={() => setSelectedEvent(e)}
+              >
+                <CardMedia
+                    component="img"
+                    height="160"
+                    image={e.event?.image_url || "https://picsum.photos/300"}
+                    alt={e.event?.name}
+                />
+                <CardContent>
 
-            <TableBody>
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    {e.event?.name}
+                  </Typography>
 
-              {bookings.map((b, i) => (
+                  <Typography>
+                    Pending: {
+                      e.bookings.filter(
+                        b => b.booking.status === 0
+                      ).length
+                    } 
+                    </Typography>
+                    <Typography>
+                    Approved: {
+                      e.bookings.filter(
+                        b => b.booking.status === 1
+                      ).length
+                    }
+                  </Typography>
 
-                <TableRow key={i}>
+                </CardContent>
 
-                  <TableCell sx={{ color: "white" }}>
-                    {b.booking.id}
-                  </TableCell>
+              </Card>
 
-                  <TableCell sx={{ color: "white" }}>
-                    {b.booking.userId}
-                  </TableCell>
+            </Grid>
 
-                  <TableCell sx={{ color: "white" }}>
-                    {b.event?.name}
-                  </TableCell>
+          ))}
 
-                  <TableCell>
+        </Grid>
 
-                    <Button
-                      variant="contained"
-                      onClick={() =>
-                        approve(b.booking.id)
-                      }
+
+        {/* ---------- ALL EVENTS ---------- */}
+
+        <Typography variant="h5" mt={4} fontWeight={"bold"}>
+          All Events
+        </Typography>
+
+        <Grid container spacing={2} mt={1}>
+
+          {eventsList.map((e, i) => (
+
+            <Grid item key={i}>
+
+              <Card
+                sx={{
+                  width: 250,
+                  cursor: "pointer",
+                  background: "#232427",
+                  color: "white"
+                }}
+                onClick={() => setSelectedEvent(e)}
+              >
+                <CardMedia
+                    component="img"
+                    height="160"
+                    image={e.event?.image_url || "https://picsum.photos/300"}
+                    alt={e.event?.name}
+                />
+        
+
+                <CardContent>
+
+                  <Typography>
+                    {e.event?.name}
+                  </Typography>
+
+                  <Typography>
+                    Total bookings: {e.bookings.length}
+                  </Typography>
+
+                </CardContent>
+
+              </Card>
+
+            </Grid>
+
+          ))}
+
+        </Grid>
+
+
+        {/* ---------- TABLE ---------- */}
+
+        {selectedEvent && (
+
+          <Box mt={4}>
+
+            <Typography variant="h5" fontWeight={"bold"}>
+              Bookings for {selectedEvent.event?.name}
+            </Typography>
+
+            <Paper sx={{ background: "#232427", mt: 2 }}>
+
+              <Table>
+
+                <TableHead>
+
+                  <TableRow>
+
+                    <TableCell sx={{ color: "white" }}> Booking ID </TableCell>
+
+                    <TableCell sx={{ color: "white" }}> User </TableCell>
+
+                    <TableCell sx={{ color: "white" }}> Attendees </TableCell>
+
+                    <TableCell sx={{ color: "white" }}> Status </TableCell>
+
+                  </TableRow>
+
+                </TableHead>
+
+                <TableBody>
+
+                  {selectedEvent.bookings.map((b, i) => (
+
+                    <TableRow
+                      key={i}
+                      hover
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => setSelectedBooking(b)}
                     >
-                      Approve
-                    </Button>
 
-                  </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {b.booking.id}
+                      </TableCell>
 
-                </TableRow>
+                      <TableCell sx={{ color: "white" }}>
+                        {b.attendees[0]?.booked_by || "N/A"}
+                      </TableCell>
 
-              ))}
+                      <TableCell sx={{ color: "white" }}>
+                        {b.booking.attendeeCount}
+                      </TableCell>
 
-            </TableBody>
+                      <TableCell>
 
-          </Table>
+                        <Chip
+                          label={
+                            b.booking.status === 0
+                              ? "Pending"
+                              : "Approved"
+                          }
+                          color={statusColor(b.booking.status)}
+                        />
 
-        </Paper>
+                      </TableCell>
+
+                    </TableRow>
+
+                  ))}
+
+                  {selectedBooking && (
+
+  <Dialog
+  open={Boolean(selectedBooking)}
+  onClose={() => setSelectedBooking(null)}
+  maxWidth="sm"
+  fullWidth
+  PaperProps={{
+    style: {
+      backgroundColor: "#c7bbb4", // Change dialog background color
+      color: "white" // Ensure text is visible
+    }
+  }}
+>
+
+    <DialogTitle color="black" fontWeight={"bold"}>
+      Attendees for Booking {selectedBooking.booking.id}
+    </DialogTitle>
+
+    <DialogContent>
+
+      <Table>
+
+        <TableHead>
+
+          <TableRow>
+
+            <TableCell fontWeight={"bold"}>Name</TableCell>
+            <TableCell fontWeight={"bold"}>Email</TableCell>
+            <TableCell fontWeight={"bold"}>Phone</TableCell>
+
+          </TableRow>
+
+        </TableHead>
+
+        <TableBody>
+
+          {selectedBooking.attendees.map((a, i) => (
+
+            <TableRow key={i}>
+
+              <TableCell>
+                {a.name}
+              </TableCell>
+
+              <TableCell>
+                {a.email}
+              </TableCell>
+
+              <TableCell>
+                {a.phone}
+              </TableCell>
+
+            </TableRow>
+
+          ))}
+
+        </TableBody>
+
+      </Table>
+
+      <Button variant="contained"
+        color="success"
+        disabled={selectedBooking.booking.status === 1}
+        sx={{ mt: 2}}
+        onClick={() => approveBooking(selectedBooking.booking.id)}
+      >
+        Approve Booking
+      </Button>
+
+      <Button variant="contained"
+        color="error"
+        disabled={selectedBooking.booking.status === 0}
+        sx={{ mt: 2, ml: 2, }}
+        onClick={() => cancelBooking(selectedBooking.booking.id)}
+      >
+        Cancel Booking
+      </Button>
+
+    </DialogContent>
+
+  </Dialog>
+
+)}
+
+                </TableBody>
+
+              </Table>
+
+            </Paper>
+
+          </Box>
+
+        )}
 
       </Box>
 

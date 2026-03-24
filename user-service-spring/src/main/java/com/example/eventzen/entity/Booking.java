@@ -1,6 +1,7 @@
 package com.example.eventzen.entity;
 
 import jakarta.annotation.Generated;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +27,9 @@ public class Booking {
     private Long eventId;
     private Long venueId;
     private int attendeeCount;
+    @Column(name = "status")
     private Integer status;
+    @Column(name = "active")
     private Boolean active;
     // Getters and Setters
     public Long getId() {

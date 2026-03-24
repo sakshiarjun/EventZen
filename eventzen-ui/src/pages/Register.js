@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { spring } from "../services/api";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 import {
   Box,
@@ -21,7 +22,8 @@ export default function Register() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
+    confirmPassword: ""
   });
 
   const change = (e) => {
@@ -35,6 +37,33 @@ export default function Register() {
 
   const register = async () => {
 
+    if (
+    !form.name ||
+    !form.email ||
+    !form.password ||
+    !form.confirmPassword
+  ) {
+    toast.warning("All fields are required");
+    return;
+  }
+  if (form.password !== form.confirmPassword) {
+    toast.warning("Passwords do not match");
+    return;
+  }
+  const emailRegex =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    toast.warning("Invalid email");
+    return;
+  }
+
+  if (form.password.length < 8) {
+    toast.warning(
+      "Password must be at least 8 characters"
+    );
+    return;
+  }
+
     try {
 
       await spring.post(
@@ -42,7 +71,7 @@ export default function Register() {
         form
       );
 
-      alert("Registered");
+      toast.success("Registered successfully! Please login.");
 
       nav("/login");
 
@@ -78,8 +107,6 @@ export default function Register() {
       }}
     >
 
-      {/* stars */}
-
       <Stars />
 
       {/* navbar */}
@@ -95,7 +122,7 @@ export default function Register() {
           justifyContent: "center",
           alignItems: "center",
           position: "relative",
-          zIndex: 1
+          zIndex: 1,
         }}
       >
 
@@ -161,6 +188,23 @@ export default function Register() {
             type="password"
             fullWidth
             sx={{ mb: 2, input: { color: "white" }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            onChange={change}
+          />
+
+          <TextField
+            label={<span style={{ color: "white" }}>Confirm Password</span>}
+            name="confirmPassword"
+            type="password"
+            fullWidth
+            sx={{
+              mb: 2,
+              input: { color: "white" },
+              '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: 'white' },
+              '&:hover fieldset': { borderColor: 'white' },
+              '&.Mui-focused fieldset': { borderColor: 'white' }
+              }
+            }}
             onChange={change}
           />
 

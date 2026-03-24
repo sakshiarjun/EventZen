@@ -29,8 +29,8 @@ namespace vendor_budget_service_dotnet.Models
 
         public bool Active { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime Created_At { get; set; }
 
-        public DateTime ModifiedAt { get; set; }
+        public DateTime Modified_At { get; set; }
     }
 }

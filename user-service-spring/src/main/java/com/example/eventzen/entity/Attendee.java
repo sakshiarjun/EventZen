@@ -2,6 +2,7 @@ package com.example.eventzen.entity;
 
 import java.sql.Timestamp;
 import jakarta.annotation.Generated;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,11 +21,14 @@ public class Attendee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "booking_id")
     private Long bookingId;
 
-    private Long userId;
-
+    @Column(name = "event_id")
     private Long eventId;
+
+    @Column(name = "user_id")
+    private Long userId;
 
     private String name;
 

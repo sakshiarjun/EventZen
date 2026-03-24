@@ -10,6 +10,16 @@ exports.getVenues = (callback) => {
     });
 };
 
+exports.getVenueById = (id, callback) => {
+    const query = 'SELECT * FROM venues WHERE id=? AND active=1';
+    db.query(query, [id], (err, results) => {
+        if (err) {
+            return callback(err);
+        }
+        callback(null, results[0]);
+    });
+};
+
 exports.createVenue = (venueData, callback) => {
     const query = 'INSERT INTO venues (name, city, capacity, price, status, active) VALUES (?, ?, ?, ?, ?, ?)';
     const values = [venueData.name, venueData.city, venueData.capacity, venueData.price, 1,1];
@@ -41,19 +51,29 @@ exports.getVenuesByCity = (city, callback) => {
     });
 };
 
-exports.updateVenue = (id, status, callback) => {
+exports.updateVenue = (
+  id,
+  name,
+  city,
+  capacity,
+  price,
+  status,
+  callback
+) => {
 
   const sql =
-    "UPDATE venues SET status=? WHERE id=?";
+    `UPDATE venues
+     SET name=?, city=?, capacity=?, price=?, status=?
+     WHERE id=?`;
 
   db.query(
     sql,
-    [status, id],
+    [name, city, capacity, price, status, id],
     (err, result) => {
 
-      if (err)
-        return callback(err);
+      if (err) return callback(err);
 
-      callback(null, result);
-});
+      callback(null, result.affectedRows);
+    }
+  );
 };

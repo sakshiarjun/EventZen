@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const eventRoutes = require("./routes/eventRoutes");
 const venueRoutes = require("./routes/venueRoutes");
+const eventVendorRoutes = require("./routes/eventVendorRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -16,3 +17,5 @@ app.use("/api/venues", venueRoutes);
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+app.use("/api/event-vendors", eventVendorRoutes);
