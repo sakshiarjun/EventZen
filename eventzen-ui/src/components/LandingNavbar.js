@@ -23,6 +23,7 @@ export default function LandingNavbar() {
           sx={{ flexGrow: 1, cursor: "pointer",
                 fontWeight: 900
            }}
+           onClick={() => nav("/")}
         >
           EventZen
         </Typography>

@@ -21,7 +21,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Tab,
+  Tab, Autocomplete
 } from "@mui/material";
 
 import Stars from "../components/Stars";
@@ -135,9 +135,9 @@ const approve = async (id) => {
       e.status === 0
     );
 
-    console.log("USER EVENTS", userEvents);
-    console.log("ADMIN EVENTS", adminEvents);
-    console.log("EVENTS NEEDING APPROVAL", eventsNeedingApproval);
+    //console.log("USER EVENTS", userEvents);
+    //console.log("ADMIN EVENTS", adminEvents);
+    //console.log("EVENTS NEEDING APPROVAL", eventsNeedingApproval);
 
    const statusColor = (s) => {
 
@@ -175,6 +175,25 @@ const [selectedType, setSelectedType] = useState("");
 const [selectedVendors, setSelectedVendors] = useState([]);
 const [selectedEvent, setSelectedEvent] = useState(null);
 const [eventVendors, setEventVendors] = useState([]);
+const [search, setSearch] = useState("");
+const [allVendors, setAllVendors] = useState([]);
+const [vendorToAdd, setVendorToAdd] = useState(null);
+
+const filteredEvents = events.filter(e =>
+  e.name
+    .toLowerCase()
+    .includes(search.toLowerCase())
+);
+
+const isVendorAdded = (vendorId) => {
+
+  return eventVendors.some(
+    v => v.vendor_id === vendorId
+  );
+
+
+};
+//console.log("EVENT VENDORS", eventVendors);
 
 const openEvent = async (event) => {
 
@@ -217,11 +236,25 @@ const openEvent = async (event) => {
     // vendors (.NET)
     // -------------------
 
-    const venRes = await fetch(
-      "http://localhost:5173/api/vendors"
-    );
+   const venRes = await fetch(
+  "http://localhost:5173/api/vendors"
+);
 
-    const allVendors = await venRes.json();
+const allVendorsData = await venRes.json();
+
+// filter by city
+const cityVendors = allVendorsData.filter(
+  v => v.city === event.city
+);
+
+// if vendors don't have city, use this instead:
+// const cityVendors = allVendorsData;
+
+setAllVendors(cityVendors);
+
+const allVendors = allVendorsData;
+
+    
 
     let vendorTotal = 0;
 
@@ -235,10 +268,11 @@ const openEvent = async (event) => {
       const price = found?.price || 0;
 
       vendorTotal += price;
+      
 
       return {
         name: ev.vendor_name,
-        service: ev.service_type,
+        service_type: ev.service_type,
         price
       };
 
@@ -329,6 +363,31 @@ const calculateTotalCost = (budget) => {
 };
 
 const totalCost = calculateTotalCost(budget);
+
+const addVendorToEvent = async (vendor) => {
+
+  await node.post("/event-vendors", {
+
+    event_id: selectedEvent.id,
+    vendor_id: vendor.id,
+    vendor_name: vendor.name,
+    service_type: vendor.service_type
+
+  });
+
+  openEvent(selectedEvent);
+
+};
+
+const removeVendor = async (id) => {
+
+  await node.delete(
+    "/event-vendors/" + id
+  );
+
+  openEvent(selectedEvent);
+
+};
 
 
   return (
@@ -572,37 +631,95 @@ const totalCost = calculateTotalCost(budget);
 
         {/* -------- Vendors -------- */}
 
-        <Typography mt={2} fontWeight="bold">
-          Vendors
+<Typography mt={2} fontWeight="bold">
+  Vendors
+</Typography>
+
+{allVendors?.map(vendor => {
+  console.log("aaaaa", vendor);
+
+  const added = isVendorAdded(vendor.id);
+
+  const evVendor =
+    eventVendors.find(
+      ev => ev.vendor_id === vendor.id
+    );
+
+  return (
+
+    <Box
+      key={vendor.id}
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        background: added
+          ? "#538a56"
+          : "#444",
+        p: 1,
+        mt: 1,
+        borderRadius: 1
+      }}
+    >
+
+      <Box>
+
+        <Typography>
+          {vendor.name} , {vendor.city}
+        <Chip 
+          label={vendor.service_Type}
+          sx={{
+            ml: 5,
+            backgroundColor:
+              colorByType(
+                vendor.service_Type
+              ),
+            color: "white"
+          }}
+        />
+        
         </Typography>
 
-        {eventVendors.map(v => (
+      </Box>
 
-          <Box
-            key={v.id}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              background: "#444",
-              p: 1,
-              mt: 1,
-              borderRadius: 1
-            }}
-          >
 
-            <Typography>
-              {v.vendor_name}
-            </Typography>
+      <Box>
 
-            <Chip
-              label={v.service_type}
-              sx = {{ backgroundColor: colorByType(v.service_type), color: "white"  }}
-            />
+        <Button
+          size="small"
+          variant="contained"
+          disabled={added}
+          sx={{
+            mr: 1,
+            background: "#4caf50"
+          }}
+          onClick={() =>
+            addVendorToEvent(vendor)
+          }
+        >
+          Add
+        </Button>
 
-          </Box>
 
-        ))}
+        <Button
+          size="small"
+          variant="contained"
+          color="error"
+          disabled={!added}
+          onClick={() =>
+            removeVendor(evVendor.id)
+          }
+        >
+          Remove
+        </Button>
 
+      </Box>
+
+    </Box>
+
+  );
+
+})}
 
         {/* -------- Budget -------- */}
 
@@ -623,6 +740,7 @@ const totalCost = calculateTotalCost(budget);
             Venue cost: ₹ {budget.venuePrice}
           </Typography>
           <hr></hr>
+
           {budget.vendors.map((v, i) => (
 
             <Typography key={i}>
@@ -699,24 +817,38 @@ const totalCost = calculateTotalCost(budget);
 </Dialog>
 
 
-        {/* ---------------- ADMIN EVENTS ---------------- */}
+        {/* ---------------- ALL EVENTS ---------------- */}
 
         <Typography variant="h4" mb={2} fontWeight={"bold"}>
           All Events
         </Typography>
+        <TextField
+  fullWidth
+  placeholder="Search event by name..."
+  value={search}
+  onChange={(e) =>
+    setSearch(e.target.value)
+  }
+  sx={{
+    mb: 5,
+    background: "white",
+    borderRadius: 1
+  }}
+/>
+
 
         <Paper sx={{ background: "#232427" }}>
-
+          
           <Table>
 
             <TableHead>
 
               <TableRow>
 
-                <TableCell sx={{ color: "white" }}>Name</TableCell>
-                <TableCell sx={{ color: "white" }}>City</TableCell>
-                <TableCell sx={{ color: "white" }}>Date</TableCell>
-                <TableCell sx={{ color: "white" }}>Total Registrations</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Name</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>City</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Date</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Total Registrations</TableCell>
 
               </TableRow>
 
@@ -724,7 +856,7 @@ const totalCost = calculateTotalCost(budget);
 
             <TableBody>
 
-              {events.map(e => (
+              {filteredEvents.map(e => (
 
                 <TableRow
                   key={e.id}

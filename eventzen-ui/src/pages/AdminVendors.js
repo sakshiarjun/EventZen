@@ -20,7 +20,7 @@ import Stars from "../components/Stars";
 import AdminNavbar from "../components/AdminNavbar";
 import { toast } from "react-toastify";
 
-const API = "http://localhost:5173/api/vendors"; // dotnet
+const API = "http://localhost:5180/api/vendors"; // dotnet
 
 export default function AdminVendors() {
 

@@ -24,6 +24,17 @@ import {
 
 export default function AdminDashboard() {
 
+  const COLORS = [
+  "#ff3d00",
+  "#4caf50",
+  "#2196f3",
+  "#ff9800",
+  "#9c27b0",
+  "#00bcd4",
+  "#e91e63",
+  "#ffc107"
+];
+
   const nav = useNavigate();
   const [events, setEvents] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -137,7 +148,7 @@ const revenuePerEvent = [];
 
 events.forEach(e => {
 
-  let total = 0;
+  let attendees = 0;
 
   bookings.forEach(b => {
 
@@ -145,17 +156,31 @@ events.forEach(e => {
       b.booking.eventId === e.id &&
       b.booking.status === 1
     ) {
-      total +=
-        b.booking.attendeeCount *
-        (e.price || 0);
+      attendees += b.booking.attendeeCount;
     }
 
   });
 
-  revenuePerEvent.push({
-    name: e.name,
-    revenue: total
-  });
+  if (attendees > 0) {
+
+    const price = e.price || 0;
+
+    const revenue = attendees * price;
+
+    const shortName =
+      e.name.length > 10
+        ? e.name.substring(0, 10) + "..."
+        : e.name;
+
+    revenuePerEvent.push({
+      name: shortName,
+      fullName: e.name,
+      attendees,
+      price,
+      revenue
+    });
+
+  }
 
 });
 
@@ -235,6 +260,46 @@ const vendorsPerService =
     name: s,
     value: serviceMap[s]
   }));
+
+const RevenueTooltip = ({ active, payload }) => {
+
+  if (active && payload && payload.length) {
+
+    const d = payload[0].payload;
+
+
+
+    return (
+      <div
+        style={{
+          background: "#222",
+          color: "white",
+          padding: 10,
+          borderRadius: 5
+        }}
+      >
+        <div>
+          {d.fullName}
+        </div>
+
+        <div>
+          Tickets sold: {d.attendees}
+        </div>
+
+        <div>
+          Ticket price: ₹ {d.price}
+        </div>
+
+        <div>
+          Revenue: ₹ {d.revenue}
+        </div>
+
+      </div>
+    );
+  }
+
+  return null;
+};
 
   return (
 
@@ -334,6 +399,19 @@ const vendorsPerService =
             Manage Bookings
           </Button>
 
+          <Button
+  fullWidth
+  sx={{
+    mb: 2,
+    color: "white",
+    backgroundColor: "#ff3d00",
+  }}
+  variant="contained"
+  onClick={() => nav("/admin/budgets")}
+>
+  Manage Budgets
+</Button>
+
         </Paper>
 
 
@@ -358,7 +436,7 @@ const vendorsPerService =
   <Grid container spacing={2} mb={3}>
 
     <Grid item xs={3}>
-      <Card sx={{ background: "#070707", color: "white" }}>
+      <Card sx={{ background: "#070707", color: "white", width: "100%" }}>
         <CardContent sx={{alignItems: "center", display: "flex", flexDirection: "column"}}>
           <Typography>Total Events</Typography>
           <Typography variant="h5">{totalEvents}</Typography>
@@ -367,7 +445,7 @@ const vendorsPerService =
     </Grid>
 
     <Grid item xs={3}>
-      <Card sx={{ background: "#070707", color: "white" }}>
+      <Card sx={{ background: "#070707", color: "white", width: "100%" }}>
         <CardContent sx={{alignItems: "center", display: "flex", flexDirection: "column"}}>
           <Typography>Total Venues</Typography>
           <Typography variant="h5">{totalVenues}</Typography>
@@ -376,7 +454,7 @@ const vendorsPerService =
     </Grid>
 
     <Grid item xs={3}>
-      <Card sx={{ background: "#070707", color: "white" }}>
+      <Card sx={{ background: "#070707", color: "white", width: "100%" }}>
         <CardContent sx={{alignItems: "center", display: "flex", flexDirection: "column"}}>
           <Typography>Total Vendors</Typography>
           <Typography variant="h5">{totalVendors}</Typography>
@@ -385,7 +463,7 @@ const vendorsPerService =
     </Grid>
 
     <Grid item xs={3}>
-      <Card sx={{ background: "#070707", color: "white" }}>
+      <Card sx={{ background: "#070707", color: "white", width: "100%" }}>
         <CardContent sx={{alignItems: "center", display: "flex", flexDirection: "column"}}>
           <Typography>Total Bookings</Typography>
           <Typography variant="h5">{totalBookings}</Typography>
@@ -399,11 +477,11 @@ const vendorsPerService =
 
   {/* ---------- ROW 1 ---------- */}
 
-  <Grid container spacing={2}>
+  <Grid container spacing={2} mt={10}>
 
     <Grid item xs={6}>
 
-      <Typography> Bookings per Event </Typography>
+      <Typography mb={3} fontWeight={"bold"}> Bookings per Event </Typography>
 
       {bookingsPerEvent.length > 0 && (
 
@@ -427,22 +505,33 @@ const vendorsPerService =
 
 
     <Grid item xs={6}>
-      <Typography>Revenue per Event</Typography>
 
-      {revenuePerEvent.length > 0 && (
-        <BarChart
-          width={500}
-          height={300}
-          data={revenuePerEvent}
-        >
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="revenue" fill="#4caf50" />
-        </BarChart>
-      )}
+  <Typography fontWeight={"bold"} mb={3}> Revenue per Event </Typography>
 
-    </Grid>
+  {revenuePerEvent.length > 0 && (
+
+    <BarChart
+      width={500}
+      height={300}
+      data={revenuePerEvent}
+    >
+
+      <XAxis dataKey="name" />
+
+      <YAxis />
+
+      <Tooltip content={<RevenueTooltip />} />
+
+      <Bar
+        dataKey="revenue"
+        fill="#4caf50"
+      />
+
+    </BarChart>
+
+  )}
+
+</Grid>
 
   </Grid>
 
@@ -450,10 +539,10 @@ const vendorsPerService =
 
   {/* ---------- ROW 2 ---------- */}
 
-  <Grid container spacing={2} mt={2}>
+  <Grid container spacing={2} mt={5}>
 
-    <Grid item xs={6}>
-      <Typography>Events per City</Typography>
+    <Grid item xs={6} mr={10}>
+      <Typography fontWeight={"bold"}>Events per City</Typography>
 
       {eventsPerCity.length > 0 && (
         <PieChart width={400} height={300}>
@@ -471,9 +560,71 @@ const vendorsPerService =
 
     </Grid>
 
+     <Grid item xs={6}>
+
+  <Typography fontWeight={"bold"}> Vendors by Service Type </Typography>
+
+  {vendorsPerService.length > 0 && (
+
+    <PieChart
+      width={450}
+      height={300}
+    >
+
+      <Pie
+  data={vendorsPerService}
+  dataKey="value"
+  nameKey="name"
+  cx="50%"
+  cy="50%"
+  outerRadius={100}
+  label
+>
+  {vendorsPerService.map((entry, index) => (
+    <Cell
+      key={index}
+      fill={COLORS[index % COLORS.length]}
+    />
+  ))}
+</Pie>
+
+      <Tooltip />
+
+    </PieChart>
+
+  )}
+
+</Grid>
+
+  </Grid>
+
+
+
+  {/* ---------- ROW 3 ---------- */}
+
+  <Grid container spacing={2} mt={2}>
+
+    <Grid item xs={6} mr={10}>
+      <Typography fontWeight={"bold"}>Events per Category</Typography>
+
+      {eventsPerCategory.length > 0 && (
+        <PieChart width={400} height={300}>
+          <Pie
+            data={eventsPerCategory}
+            dataKey="value"
+            nameKey="name"
+            outerRadius={100}
+            fill="#9c27b0"
+            label
+          />
+          <Tooltip />
+        </PieChart>
+      )}
+
+    </Grid>
 
     <Grid item xs={6}>
-      <Typography>Pending vs Approved</Typography>
+      <Typography fontWeight={"bold"}>Pending vs Approved Events</Typography>
 
       {pendingApproved.length > 0 && (
         <PieChart width={400} height={300}>
@@ -494,50 +645,6 @@ const vendorsPerService =
   </Grid>
 
 
-
-  {/* ---------- ROW 3 ---------- */}
-
-  <Grid container spacing={2} mt={2}>
-
-    <Grid item xs={6}>
-      <Typography>Events per Category</Typography>
-
-      {eventsPerCategory.length > 0 && (
-        <PieChart width={400} height={300}>
-          <Pie
-            data={eventsPerCategory}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={100}
-            fill="#9c27b0"
-            label
-          />
-          <Tooltip />
-        </PieChart>
-      )}
-
-    </Grid>
-
-
-    <Grid item xs={6}>
-      <Typography>Vendors by Service Type</Typography>
-
-      {vendorsPerService.length > 0 && (
-        <BarChart
-          width={500}
-          height={300}
-          data={vendorsPerService}
-        >
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="value" fill="#00bcd4" />
-        </BarChart>
-      )}
-
-    </Grid>
-
-  </Grid>
 
 </Box>
 

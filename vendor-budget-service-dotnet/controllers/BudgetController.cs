@@ -23,6 +23,7 @@ namespace vendor_budget_service_dotnet.Controllers
         {
             return Ok(_context.Budgets.Where(b => b.Active));
         }
+
         [HttpPost]
         public IActionResult CreateBudget(Budget budget)
         {
@@ -30,6 +31,9 @@ namespace vendor_budget_service_dotnet.Controllers
             budget.Status = 1; // Assuming 1 is the default status for active budgets   
             _context.Budgets.Add(budget);
             _context.SaveChanges();
+            Console.WriteLine(
+    $"Cost {budget.Total_Cost} Rev {budget.Estimated_Revenue} Profit {budget.Profit}"
+);
             return Ok(budget);
         }
     }

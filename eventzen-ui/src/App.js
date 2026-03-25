@@ -19,6 +19,7 @@ import PublicEvents from "./pages/PublicEvents";
 import AdminBookings from "./pages/AdminBookings";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
+import AdminBudgets from "./pages/AdminBudgets";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
         <Route path="/events" element={<PublicEvents />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/my-events" element={<MyEvents />} />
+        <Route path="/admin/budgets" element={<AdminBudgets />} />
       </Routes>
 
       {/* ✅ ADD HERE */}

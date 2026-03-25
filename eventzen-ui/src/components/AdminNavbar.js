@@ -77,6 +77,13 @@ export default function DashboardNavbar() {
 
           <Button
             color="inherit"
+            onClick={() => nav("/admin/budgets")}
+          >
+            Budgets
+          </Button>
+
+          <Button
+            color="inherit"
             onClick={logout}
           >
             Logout
