@@ -131,3 +131,4 @@
 /Users/sakshiarjun/Documents/PDI-Intro/CapstoneProject/eventzen/vendor-budget-service-dotnet/obj/Debug/net10.0/vendor-budget-service-dotnet.pdb
 /Users/sakshiarjun/Documents/PDI-Intro/CapstoneProject/eventzen/vendor-budget-service-dotnet/obj/Debug/net10.0/vendor-budget-service-dotnet.genruntimeconfig.cache
 /Users/sakshiarjun/Documents/PDI-Intro/CapstoneProject/eventzen/vendor-budget-service-dotnet/obj/Debug/net10.0/ref/vendor-budget-service-dotnet.dll
+/Users/sakshiarjun/Documents/PDI-Intro/CapstoneProject/eventzen/vendor-budget-service-dotnet/bin/Debug/net10.0/appsettings.Docker.json

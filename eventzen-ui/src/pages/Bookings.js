@@ -253,7 +253,7 @@ const handleRowClick = (b) => {
       const BASE_URL = "http://192.168.1.142:3001";
       const host = window.location.hostname;
       const ticketUrl =
-        "http://" + host + ":3001/ticket/" +
+        BASE_URL +
   ticketBooking.booking.id +
   "/" +
   i;

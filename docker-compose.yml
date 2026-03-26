@@ -11,11 +11,15 @@ services:
     build: ./event-venue-service-node
     ports:
       - "3000:3000"
+    env_file:
+      - ./event-venue-service-node/.env.docker
 
   dotnet:
     build: ./vendor-budget-service-dotnet
     ports:
       - "5180:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
 
   react:
     build: ./eventzen-ui

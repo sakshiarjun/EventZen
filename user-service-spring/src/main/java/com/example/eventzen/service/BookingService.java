@@ -7,12 +7,14 @@ import com.example.eventzen.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+
 public class BookingService {
 
     private RestTemplate restTemplate = new RestTemplate();
@@ -69,13 +71,15 @@ public class BookingService {
         return saved;
     }
 
+    @Value("${node.url}")
+    private String nodeUrl;
     public List<BookingResponse> getAllBookings() {
 
-    List<Booking> bookings = bookingRepository.findAll();
+        List<Booking> bookings = bookingRepository.findAll();
 
-    List<BookingResponse> list = new ArrayList<>();
+        List<BookingResponse> list = new ArrayList<>();
 
-    for (Booking b : bookings) {
+        for (Booking b : bookings) {
 
         BookingResponse r = new BookingResponse();
 
@@ -90,9 +94,7 @@ public class BookingService {
 
         try {
 
-            String url =
-                "http://node:3000/api/events/"
-                + b.getEventId();
+            String url = nodeUrl + "/events/" + b.getEventId();
 
             Object event =
                 restTemplate.getForObject(url, Object.class);
