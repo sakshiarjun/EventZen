@@ -20,6 +20,7 @@ import AdminBookings from "./pages/AdminBookings";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
 import AdminBudgets from "./pages/AdminBudgets";
+import TicketPage from "./pages/TicketPage";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -46,6 +47,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/my-events" element={<MyEvents />} />
         <Route path="/admin/budgets" element={<AdminBudgets />} />
+        <Route path="/ticket/:bookingId/:index" element={<TicketPage />} />
+
       </Routes>
 
       {/* ✅ ADD HERE */}
