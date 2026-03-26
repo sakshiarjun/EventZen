@@ -251,11 +251,11 @@ const handleRowClick = (b) => {
       const event = ticketBooking.event;
 
       const ticketUrl =
-        window.location.origin +
-        "/ticket/" +
-        ticketBooking.booking.id +
-        "/" +
-        i;
+  window.location.origin +
+  "/ticket/" +
+  ticketBooking.booking.id +
+  "/" +
+  i;
 
       return (
 
