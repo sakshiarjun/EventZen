@@ -97,6 +97,13 @@ const cancelBooking = async (id) => {
     )
   );
 
+  const scrollToBookings = () => {
+    const bookingsSection = document.getElementById("bookings-section");
+    if (bookingsSection) {
+      bookingsSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
 
     <Box sx={{ minHeight: "100vh", background: "black", color: "white" }}>
@@ -126,11 +133,18 @@ const cancelBooking = async (id) => {
               <Card
                 sx={{
                   width: 250,
+                  height: 350, // Set a fixed height for all cards
                   cursor: "pointer",
                   background: "#232427",
-                  color: "white"
+                  color: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between" // Ensure content is spaced evenly
                 }}
-                onClick={() => setSelectedEvent(e)}
+                onClick={() => {
+                  setSelectedEvent(e);
+                  scrollToBookings();
+                }}
               >
                 <CardMedia
                     component="img"
@@ -173,7 +187,7 @@ const cancelBooking = async (id) => {
         {/* ---------- ALL EVENTS ---------- */}
 
         <Typography variant="h5" mt={4} fontWeight={"bold"}>
-          All Events
+          All Events with Bookings
         </Typography>
 
         <Grid container spacing={2} mt={1}>
@@ -185,11 +199,18 @@ const cancelBooking = async (id) => {
               <Card
                 sx={{
                   width: 250,
+                  height: 300, // Set a fixed height for all cards
                   cursor: "pointer",
                   background: "#232427",
-                  color: "white"
+                  color: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between" // Ensure content is spaced evenly
                 }}
-                onClick={() => setSelectedEvent(e)}
+                onClick={() => {
+                  setSelectedEvent(e);
+                  scrollToBookings();
+                }}
               >
                 <CardMedia
                     component="img"
@@ -201,7 +222,7 @@ const cancelBooking = async (id) => {
 
                 <CardContent>
 
-                  <Typography>
+                  <Typography sx={{ fontWeight: "bold", mb: 1 }}>
                     {e.event?.name}
                   </Typography>
 
@@ -223,9 +244,7 @@ const cancelBooking = async (id) => {
         {/* ---------- TABLE ---------- */}
 
         {selectedEvent && (
-
-          <Box mt={4}>
-
+          <Box mt={4} id="bookings-section">
             <Typography variant="h5" fontWeight={"bold"}>
               Bookings for {selectedEvent.event?.name}
             </Typography>

@@ -8,12 +8,14 @@ import {
   TableBody,
   Paper,Box,Typography,Chip, Dialog,
   DialogTitle,
-  DialogContent, Button
+  DialogContent, Button,
 } from "@mui/material";
 
 import Stars from "../components/Stars";
 import DashboardNavbar from "../components/DashboardNavbar";
 import { toast } from "react-toastify";
+import { QRCode, QRCodeCanvas } from "qrcode.react";
+
 
 export default function Bookings() {
 
@@ -22,6 +24,9 @@ export default function Bookings() {
 const [selectedAttendees, setSelectedAttendees] = useState([]);
 const [selectedBooking, setSelectedBooking] = useState(null);
 const [selectedEvent, setSelectedEvent] = useState(null);
+
+const [showTickets, setShowTickets] = useState(false);
+const [ticketBooking, setTicketBooking] = useState(null);
 
 const handleRowClick = (b) => {
 
@@ -187,18 +192,37 @@ const handleRowClick = (b) => {
 
             <TableCell>
 
-              <Chip
-                label={
-                  booking.status === 0
-                    ? "Pending"
-                    : booking.status === 1
-                    ? "Approved"
-                    : "Cancelled"
-                }
-                color={statusColor(booking.status)}
-              />
+  <Chip
+    label={
+      booking.status === 0
+        ? "Pending"
+        : booking.status === 1
+        ? "Approved"
+        : "Cancelled"
+    }
+    color={statusColor(booking.status)}
+  />
 
-            </TableCell>
+  {booking.status === 1 && (
+
+    <Button
+      size="small"
+      sx={{ ml: 4 }}
+      variant="contained"
+
+      color="success"
+      onClick={(e) => {
+        e.stopPropagation();
+        setTicketBooking(b);
+        setShowTickets(true);
+      }}
+    >
+      Get Tickets
+    </Button>
+
+  )}
+
+</TableCell>
 
           </TableRow>
 
@@ -213,6 +237,103 @@ const handleRowClick = (b) => {
   </Table>
 
 </Paper>
+
+  {showTickets && ticketBooking && (
+
+  <Box mt={4}>
+
+    <Typography variant="h5" mb={2} fontWeight="bold">
+      My Tickets
+    </Typography>
+
+    {ticketBooking.attendees.map((a, i) => {
+
+      const event = ticketBooking.event;
+
+      const ticketUrl =
+        window.location.origin +
+        "/ticket/" +
+        ticketBooking.booking.id +
+        "/" +
+        i;
+
+      return (
+
+        <Paper
+          key={i}
+          sx={{
+            display: "flex",
+            mb: 2,
+            background: "#232427",
+            color: "white",
+            overflow: "hidden"
+          }}
+        >
+
+          {/* image left */}
+          <img
+            src={event.image_url}
+            alt=""
+            style={{
+              width: 200,
+              objectFit: "cover"
+            }}
+          />
+
+          {/* details */}
+          <Box p={2} flex={1}>
+
+            <Typography variant="h6">
+              {event.name}
+            </Typography>
+
+            <Typography>
+              {event.city}
+            </Typography>
+
+            <Typography>
+              {new Date(
+                event.event_date
+              ).toDateString()}
+            </Typography>
+
+            <Typography>
+
+              {event.start_time} - {event.end_time}
+
+            </Typography>
+
+            <Typography mt={1}>
+              Attendee: {a.name}
+            </Typography>
+
+          </Box>
+
+          {/* QR */}
+          <Box
+            p={2}
+            display="flex"
+            alignItems="center"
+          >
+
+            <QRCodeCanvas
+              value={ticketUrl}
+              size={100}
+              bgColor="#ffffff"
+              fgColor="#000000"
+            />
+
+          </Box>
+
+        </Paper>
+
+      );
+
+    })}
+
+  </Box>
+
+)}
 
   <Dialog open={open} onClose={() => setOpen(false)}
   maxWidth="sm"
@@ -231,11 +352,13 @@ const handleRowClick = (b) => {
 
   <DialogContent>
 
+
     {selectedEvent && (
 
       <Box mb={2}>
 
-        <Typography variant="h6" fontWeight={"bold"} color="black">
+        <img src={selectedEvent.image_url} alt={selectedEvent.name} style={{ width: '100%', borderRadius: '8px', marginBottom: '16px' }} />
+        <Typography variant="h4" fontWeight={"bold"} color="black">
           {selectedEvent.name}
         </Typography>
 
