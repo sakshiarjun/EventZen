@@ -1,6 +1,8 @@
 services:
 
   spring:
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
     build: ./user-service-spring
     ports:
       - "8081:8081"
@@ -13,7 +15,7 @@ services:
   dotnet:
     build: ./vendor-budget-service-dotnet
     ports:
-      - "5180:5180"
+      - "5180:8080"
 
   react:
     build: ./eventzen-ui

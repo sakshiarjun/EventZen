@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { node, spring } from "../services/api";
+import { dotnet, node, spring } from "../services/api";
 import axios from "axios";
 import CreateEventForm from "../components/CreateEventForm";
 import { toast } from "react-toastify";
@@ -323,6 +323,10 @@ useEffect(() => {
 
   axios.get("http://localhost:5173/api/vendors")
     .then(res => setVendors(res.data));
+
+  /*dotnet.get("/vendors").then(res => {
+    setVendors(res.data);
+  });*/
 
 }, []);
 

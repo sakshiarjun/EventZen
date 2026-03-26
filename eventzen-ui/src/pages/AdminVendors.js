@@ -21,6 +21,7 @@ import AdminNavbar from "../components/AdminNavbar";
 import { toast } from "react-toastify";
 
 const API = "http://localhost:5180/api/vendors"; // dotnet
+//dotnet.get("/vendors")
 
 export default function AdminVendors() {
 

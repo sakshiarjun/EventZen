@@ -91,7 +91,7 @@ public class BookingService {
         try {
 
             String url =
-                "http://localhost:3000/api/events/"
+                "http://node:3000/api/events/"
                 + b.getEventId();
 
             Object event =

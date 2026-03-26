@@ -243,16 +243,17 @@ const handleRowClick = (b) => {
   <Box mt={4}>
 
     <Typography variant="h5" mb={2} fontWeight="bold">
-      My Tickets
+      Ticks
     </Typography>
 
     {ticketBooking.attendees.map((a, i) => {
 
       const event = ticketBooking.event;
 
+      const BASE_URL = "http://192.168.1.142:3001";
+      const host = window.location.hostname;
       const ticketUrl =
-  window.location.origin +
-  "/ticket/" +
+        "http://" + host + ":3001/ticket/" +
   ticketBooking.booking.id +
   "/" +
   i;

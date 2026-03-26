@@ -3,7 +3,7 @@ import { Box, Button, Typography, Paper,
  } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { node, spring } from "../services/api";
+import { dotnet, node, spring } from "../services/api";
 import axios from "axios";
 
 import Stars from "../components/Stars";
@@ -56,10 +56,14 @@ export default function AdminDashboard() {
   });
 
   axios
-    .get("http://localhost:5173/api/vendors")
+    .get("http://localhost:5180/api/vendors")
     .then(res => {
       setVendors(res.data);
-    });
+});
+
+  /*dotnet.get("/vendors").then(res => {
+    setVendors(res.data);
+  });*/
 
 }, []);
 
