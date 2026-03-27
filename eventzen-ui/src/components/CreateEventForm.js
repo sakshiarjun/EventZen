@@ -258,6 +258,24 @@ const handleSubmit = async () => {
 
 };
 
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target;
+
+    // Check if end_time is earlier than start_time
+    if (name === "end_time" && form.start_time) {
+      const startTime = form.start_time;
+      if (value <= startTime) {
+        toast.error("End time cannot be earlier than or equal to start time");
+        return;
+      }
+    }
+
+    setForm({
+      ...form,
+      [name]: value,
+    });
+  };
+
   return (
     <Card
       sx={{
@@ -444,13 +462,13 @@ const handleSubmit = async () => {
             type="time"
             name="start_time"
             fullWidth
-            onChange={handleChange}
-            slotProps={{input: 
-              {
-                step: 1800   // 30 minutes
-            }}  
-              }
-            sx={{inputStyle, backgroundColor: "gray",}}
+            onChange={handleTimeChange}
+            slotProps={{
+              input: {
+                step: 1800, // 30 minutes
+              },
+            }}
+            sx={{ inputStyle, backgroundColor: "gray" }}
           />
         </Grid>
 
@@ -462,13 +480,13 @@ const handleSubmit = async () => {
             type="time"
             name="end_time"
             fullWidth
-            onChange={handleChange}
-            slotProps={{input: 
-              {
-                step: 1800   // 30 minutes
-            }}  
-              }
-            sx={{inputStyle, backgroundColor: "gray",}}
+            onChange={handleTimeChange}
+            slotProps={{
+              input: {
+                step: 1800, // 30 minutes
+              },
+            }}
+            sx={{ inputStyle, backgroundColor: "gray" }}
           />
         </Grid>
       </Grid>

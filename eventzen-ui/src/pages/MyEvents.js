@@ -59,7 +59,7 @@ export default function MyEvents() {
       sx={{
         minHeight: "100vh",
         background: "black",
-        color: "white"
+        color: "white",
       }}
     >
 
@@ -67,7 +67,7 @@ export default function MyEvents() {
 
       <DashboardNavbar />
 
-      <Box sx={{ pt: 12, px: 3 }}>
+      <Box sx={{ pt: 12, px: 3, mx: 3 }}>
 
         <Typography
           variant="h4"

@@ -104,6 +104,13 @@ const handleRowClick = (b) => {
     return "default";
   };
 
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(":");
+    const suffix = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12;
+    return `${formattedHours}:${minutes} ${suffix}`;
+  };
+
 
   return (
 
@@ -243,7 +250,7 @@ const handleRowClick = (b) => {
   <Box mt={4}>
 
     <Typography variant="h5" mb={2} fontWeight="bold">
-      Ticks
+      My Tickets for {ticketBooking.event.name}
     </Typography>
 
     {ticketBooking.attendees.map((a, i) => {
@@ -253,7 +260,7 @@ const handleRowClick = (b) => {
       const BASE_URL = "http://192.168.1.142:3001";
       const host = window.location.hostname;
       const ticketUrl =
-        BASE_URL +
+        BASE_URL + "/ticket/" +
   ticketBooking.booking.id +
   "/" +
   i;
@@ -300,7 +307,7 @@ const handleRowClick = (b) => {
 
             <Typography>
 
-              {event.start_time} - {event.end_time}
+              {formatTime(event.start_time)} - {formatTime(event.end_time)}
 
             </Typography>
 

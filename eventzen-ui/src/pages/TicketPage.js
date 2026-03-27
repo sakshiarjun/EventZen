@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import { spring } from "../services/api";
 
-export default function TicketPage() {
+export default function TicketCard() {
 
   const { bookingId, index } = useParams();
 
@@ -36,12 +36,13 @@ export default function TicketPage() {
     return (
       <Box
         sx={{
-          minHeight: "100vh",
-          background: "black",
-          color: "white",
           display: "flex",
           justifyContent: "center",
-          alignItems: "center"
+          alignItems: "center",
+          p: 2,
+          background: "#f0f0f0",
+          borderRadius: 2,
+          boxShadow: 1
         }}
       >
         Loading...
@@ -49,58 +50,50 @@ export default function TicketPage() {
     );
   }
 
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(":");
+    const suffix = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12;
+    return `${formattedHours}:${minutes} ${suffix}`;
+  };
 
   return (
 
-    <Box
+    <Paper
       sx={{
-        minHeight: "100vh",
-        background: "black",
+        p: 4,
+        background: "#777268",
         color: "white",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
+        minWidth: 350,
+        borderRadius: 2,
+        boxShadow: 3
       }}
     >
 
-      <Paper
-        sx={{
-          p: 4,
-          background: "#232427",
-          color: "white",
-          minWidth: 350
-        }}
-      >
+      <Typography variant="h4" fontWeight="bold">
+        {event.name}
+      </Typography>
 
-        <Typography variant="h4" fontWeight="bold">
-          {event.name}
-        </Typography>
+      <img src={event.image_url} alt={event.name} 
+        style={{ width: "100%", borderRadius: 8, marginTop: 16 }} />
 
-        <Typography mt={1}>
-          {event.city}
-        </Typography>
+      <Typography mt={1}>
+        {event.city}
+      </Typography>
 
-        <Typography>
-          {new Date(event.event_date).toDateString()}
-        </Typography>
+      <Typography>
+        {new Date(event.event_date).toDateString()}
+      </Typography>
 
-        <Typography>
+      <Typography>
+        {formatTime(event.start_time)} - {formatTime(event.end_time)}
+      </Typography>
 
-          {event.start_time} - {event.end_time}
+      <Typography mt={2} fontWeight="bold">
+        Attendee: {attendee.name}
+      </Typography>
 
-        </Typography>
-
-        <Typography mt={2} fontWeight="bold">
-          Attendee:
-        </Typography>
-
-        <Typography>
-          {attendee.name}
-        </Typography>
-
-      </Paper>
-
-    </Box>
+    </Paper>
 
   );
 
